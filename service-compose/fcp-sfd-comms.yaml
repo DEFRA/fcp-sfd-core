@@ -1,0 +1,28 @@
+services:
+  fcp-sfd-comms:
+    build:
+      target: development
+    image: fcp-sfd-comms-development
+    container_name: fcp-sfd-comms-development
+    ports:
+      - '3001:3001'
+    links:
+      - 'localstack:localstack'
+      - 'mongodb:mongodb'
+    depends_on:
+      localstack:
+        condition: service_healthy
+      mongodb:
+        condition: service_started
+    volumes:
+      - ../../fcp-sfd-comms/src:/home/node/src
+      - ../../fcp-sfd-comms/package.json:/home/node/package.json
+    env_file:
+      - .env
+    environment:
+      PORT: 3001
+      NODE_ENV: development
+      LOCALSTACK_ENDPOINT: http://localstack:4566
+      MONGO_URI: mongodb://mongodb:27017/
+    networks:
+      - cdp-tenant
