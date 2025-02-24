@@ -1,0 +1,43 @@
+include:
+  - service-compose/fcp-sfd-data.yaml
+services:
+  localstack:
+    image: localstack/localstack:3.0.2
+    ports:
+      - 4566:4566
+      - 4510-4559:4510-4559
+    env_file:
+      - .env
+    environment:
+      DEBUG: ${DEBUG:-1}
+      LS_LOG: WARN
+      SERVICES: s3,sqs,sns,firehose
+      LOCALSTACK_HOST: 127.0.0.1
+    volumes:
+      - ${TMPDIR:-/tmp}/localstack:/var/lib/localstack
+      - ../../fcp-sfd-data/compose/start-localstack.sh:/etc/localstack/init/ready.d/start-localstack.sh
+    healthcheck:
+      test:
+        - CMD
+        - curl
+        - localhost:4566
+      interval: 5s
+      start_period: 5s
+      retries: 3
+    networks:
+      - cdp-tenant
+  mongodb:
+    image: mongo:6.0.13
+    networks:
+      - cdp-tenant
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodb-data:/data
+    restart: always
+volumes:
+  mongodb-data: null
+networks:
+  cdp-tenant:
+    name: fcp-sfd
+    driver: bridge
