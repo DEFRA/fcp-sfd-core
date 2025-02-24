@@ -7,7 +7,7 @@ const cwd = process.cwd()
 const servicesPath = `${cwd}/service-compose`
 const reposPath = path.resolve(cwd, '..')
 
-async function pull() {
+const pull = async () => {
   const services = await fs.readdir(servicesPath)
 
   const processes = []
