@@ -1,11 +1,12 @@
 services:
   fcp-sfd-comms:
     build:
+      context: ../../fcp-sfd-comms
       target: development
     image: fcp-sfd-comms-development
     container_name: fcp-sfd-comms-development
     ports:
-      - '3001:3001'
+      - '3039:3001'
     links:
       - 'localstack:localstack'
       - 'mongodb:mongodb'
@@ -18,9 +19,9 @@ services:
       - ../../fcp-sfd-comms/src:/home/node/src
       - ../../fcp-sfd-comms/package.json:/home/node/package.json
     env_file:
-      - .env
+      - ../.env
     environment:
-      PORT: 3001
+      PORT: 3039
       NODE_ENV: development
       LOCALSTACK_ENDPOINT: http://localstack:4566
       MONGO_URI: mongodb://mongodb:27017/
