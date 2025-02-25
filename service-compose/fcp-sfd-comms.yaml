@@ -6,7 +6,7 @@ services:
     image: fcp-sfd-comms-development
     container_name: fcp-sfd-comms-development
     ports:
-      - '3039:3001'
+      - '3039:3039'
     links:
       - 'localstack:localstack'
       - 'mongodb:mongodb'
@@ -26,4 +26,4 @@ services:
       LOCALSTACK_ENDPOINT: http://localstack:4566
       MONGO_URI: mongodb://mongodb:27017/
     networks:
-      - cdp-tenant
+      - fcp-sfd

@@ -18,7 +18,7 @@ const constructCompose = async (serviceName, ports) => {
         image: serviceName,
         container_name: serviceName,
         networks: [
-          'cdp-tenant'
+          'fcp-sfd'
         ],
         ports: [
           `${ports[0]}:${ports[0]}`

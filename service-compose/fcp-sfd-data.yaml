@@ -6,7 +6,7 @@ services:
     image: fcp-sfd-data-development
     container_name: fcp-sfd-data-development
     ports:
-      - '3033:3001'
+      - '3033:3033'
     links:
       - 'localstack:localstack'
       - 'mongodb:mongodb'
@@ -28,4 +28,4 @@ services:
       DATA_INGEST_QUEUE_URL: http://sqs.eu-west-2.127.0.0.1:4566/000000000000/fcp_sfd_data_ingest.fifo
       DATA_INGEST_DEAD_LETTER_QUEUE_URL: http://sqs.eu-west-2.127.0.0.1:4566/000000000000/fcp_sfd_data_ingest_dlq.fifo
     networks:
-      - cdp-tenant
+      - fcp-sfd
