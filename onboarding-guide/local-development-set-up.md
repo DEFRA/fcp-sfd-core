@@ -3,15 +3,14 @@ The SFD has a number of repositories. The following instructions should get you 
 
 1. Clone the [fcp-sfd-core](https://github.com/defra/fcp-sfd-core) repository from GitHub. This makes local development a lot easier because you'll be able to build, start, and stop multiple Docker containers for each of our micro-services with a single command. The core also enables you to checkout to main branches and pull latest updates.
 
-2. Run the `node ./scripts/clone.js` command to get all repos cloned to your local machine.
+2. Run the `npm run clone` command to get all repos cloned to your local machine.
 
 3. You'll need all of the environment variables for all our microservices so that the Docker containers can build successfully. Ask anyone on the development team and they'll give you everything you need.
 
 4. Once your `.env` file set up is complete, you'll need to build and then start all the Docker containers:
 
 ```
-docker-compose build
-docker-compose start
+docker-compose up --build
 ```
 
 If at any stage you come into any errors and have issues with troubleshooting, don't hesitate to reach out to the team and we'll get it sorted.

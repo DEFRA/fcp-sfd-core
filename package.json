@@ -9,8 +9,7 @@
     "clone": "node scripts/clone.js",
     "pull": "node scripts/pull.js",
     "update": "node scripts/update.js",
-    "latest-versions": "node scripts/latest-versions.js",
-    "start:dev": "npm run start:watch"
+    "latest-versions": "node scripts/latest-versions.js"
   },
   "repository": {
     "type": "git",
@@ -23,7 +22,7 @@
   },
   "homepage": "https://github.com/DEFRA/fcp-sfd-core#readme",
   "dependencies": {
-    "shelljs": "^0.8.5",
+    "shelljs": "0.8.5",
     "yaml": "^2.7.0"
   }
 }

@@ -1,4 +1,5 @@
 include:
+  - service-compose/fcp-sfd-file-processor.yaml
   - service-compose/fcp-sfd-data.yaml
   - service-compose/fcp-sfd-comms.yaml
 services:
