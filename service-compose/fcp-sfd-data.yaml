@@ -6,7 +6,7 @@ services:
     image: fcp-sfd-data-development
     container_name: fcp-sfd-data-development
     ports:
-      - '3555:3555'
+      - '3000:3000'
     links:
       - 'localstack:localstack'
       - 'mongodb:mongodb'
@@ -21,7 +21,7 @@ services:
     env_file:
       - ../.env
     environment:
-      PORT: 3555
+      PORT: 3000
       NODE_ENV: development
       SQS_ENDPOINT: http://localstack:4566
       MONGO_URI: mongodb://mongodb:27017/
