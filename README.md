@@ -19,9 +19,9 @@ For new software developers joining the SFD team, there is an [onboarding guide]
 
 You will need to clone this repository before running any scripts.
 ```bash
-git clone https://github.com/DEFRA/fcp-fd-core
+git clone https://github.com/DEFRA/fcp-sfd-core
 
-cd fcp-fd-core
+cd fcp-sfd-core
 
 npm install
 ```
