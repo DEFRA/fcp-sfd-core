@@ -1,6 +1,7 @@
 include:
   - service-compose/fcp-sfd-data.yaml
   - service-compose/fcp-sfd-comms.yaml
+  - service-compose/fcp-sfd-frontend.yaml
 services:
   localstack:
     image: localstack/localstack:3.0.2
@@ -18,6 +19,7 @@ services:
       - ${TMPDIR:-/tmp}/localstack:/var/lib/localstack
       - ../../fcp-sfd-data/compose/start-localstack.sh:/etc/localstack/init/ready.d/start-localstack.sh
       - ../../fcp-sfd-comms/compose/start-localstack.sh:/etc/localstack/init/ready.d/start-localstack.sh
+      - ../../fcp-sfd-frontend/compose/start-localstack.sh:/etc/localstack/init/ready.d/start-localstack.sh
     healthcheck:
       test:
         - CMD
