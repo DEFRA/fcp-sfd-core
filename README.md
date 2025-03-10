@@ -14,6 +14,7 @@ For new software developers joining the SFD team, there is an [onboarding guide]
 | Service | Type | Quality gate |
 | --- | --- | --- |
 | [fcp-sfd-data](https://github.com/defra/fcp-sfd-data) | Customer | [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_fcp-sfd-data&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=DEFRA_fcp-sfd-data) |
+| [fcp-sfd-frontend](https://github.com/defra/fcp-sfd-frontend) | Customer | |
 
 ## Local Development
 
