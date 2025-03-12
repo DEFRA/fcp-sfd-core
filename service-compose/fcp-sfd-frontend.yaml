@@ -13,7 +13,7 @@ services:
     depends_on:
       localstack:
         condition: service_healthy
-      mongodb:
+      redis:
         condition: service_started
     volumes:
       - ../../fcp-sfd-frontend/src:/home/node/src
