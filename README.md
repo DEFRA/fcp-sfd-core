@@ -13,8 +13,9 @@ For new software developers joining the SFD team, there is an [onboarding guide]
 ## Repositories
 | Service | Type | Quality gate |
 | --- | --- | --- |
+| [fcp-sfd-comms](https://github.com/defra/fcp-sfd-comms) | Customer | [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_fcp-sfd-comms&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=DEFRA_fcp-sfd-comms) |
 | [fcp-sfd-data](https://github.com/defra/fcp-sfd-data) | Customer | [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_fcp-sfd-data&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=DEFRA_fcp-sfd-data) |
-| [fcp-sfd-frontend](https://github.com/defra/fcp-sfd-frontend) | Customer | |
+| [fcp-sfd-frontend](https://github.com/defra/fcp-sfd-frontend) | Customer | [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_fcp-sfd-frontend&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=DEFRA_fcp-sfd-frontend) |
 
 ## Local Development
 
@@ -46,7 +47,7 @@ If you need assistance with finding the correct values for the `.env` file, plea
 To start all services, run the following command:
 
 ```bash
-docker-compose --profile fcp-sfd up --build
+docker-compose up --build
 ```
 
 To stop the services, run the following command:

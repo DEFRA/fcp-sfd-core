@@ -17,9 +17,9 @@ services:
       LOCALSTACK_HOST: 127.0.0.1
     volumes:
       - ${TMPDIR:-/tmp}/localstack:/var/lib/localstack
-      - ../../fcp-sfd-data/compose/start-localstack.sh:/etc/localstack/init/ready.d/start-localstack.sh
-      - ../../fcp-sfd-comms/compose/start-localstack.sh:/etc/localstack/init/ready.d/start-localstack.sh
-      - ../../fcp-sfd-frontend/compose/start-localstack.sh:/etc/localstack/init/ready.d/start-localstack.sh
+      - ../fcp-sfd-data/compose/start-localstack.sh:/etc/localstack/init/ready.d/setup-fcp-sfd-data.sh
+      - ../fcp-sfd-comms/compose/start-localstack.sh:/etc/localstack/init/ready.d/setup-fcp-sfd-comms.sh
+      - ../fcp-sfd-frontend/compose/start-localstack.sh:/etc/localstack/init/ready.d/setup-fcp-sfd-frontend.sh
     healthcheck:
       test:
         - CMD
@@ -30,6 +30,7 @@ services:
       retries: 3
     networks:
       - fcp-sfd
+
   mongodb:
     image: mongo:6.0.13
     networks:
@@ -39,8 +40,18 @@ services:
     volumes:
       - mongodb-data:/data
     restart: always
+
+  redis:
+    image: redis:7.2.3-alpine3.18
+    ports:
+      - '6379:6379'
+    restart: always
+    networks:
+      - fcp-sfd
+
 volumes:
-  mongodb-data: null
+  mongodb-data:
+
 networks:
   fcp-sfd:
     name: fcp-sfd

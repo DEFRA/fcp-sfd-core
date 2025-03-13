@@ -13,7 +13,7 @@ services:
     depends_on:
       localstack:
         condition: service_healthy
-      mongodb:
+      redis:
         condition: service_started
     volumes:
       - ../../fcp-sfd-frontend/src:/home/node/src
@@ -23,6 +23,6 @@ services:
     environment:
       PORT: 3002
       NODE_ENV: development
-      LOCALSTACK_ENDPOINT: http://localstack:4566
+      SQS_ENDPOINT: http://localstack:4566
     networks:
       - fcp-sfd
