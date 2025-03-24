@@ -2,7 +2,7 @@ Update `commsAddresses` to your own email address.
 
 ```
 {
-    "id": "123e4567-e89b-12d3-a456-426655440000",
+    "id": "EDAAA96D-A4F7-4B75-9104-F982F2D61412",
     "source": "ffc-ahwr-claim",
     "specversion": "1.0",
     "type": "uk.gov.fcp.sfd.notification.request",
@@ -25,7 +25,7 @@ Update `commsAddresses` to your own email address.
         },
         "reference": "ffc-ahwr-example-reference",
         "oneClickUnsubscribeUrl": "https://unsubscribe.example.com",
-        "emailReplyToId": "8e222534-7f05-4972-86e3-17c5d9f894e2"
+        "emailReplyToId": "da1afd3e-3368-4c3e-b239-76676471c2d4"
     }
 }
 ```
