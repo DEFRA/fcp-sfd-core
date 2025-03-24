@@ -2,7 +2,7 @@ Update `commsAddresses` to your own email address.
 
 ```
 {
-    "id": "123e4567-e89b-12d3-a456-426655440000",
+    "id": "A0A3F5A0-CF6C-4359-AA1E-51F611330083",
     "source": "ffc-ahwr-claim",
     "specversion": "1.0",
     "type": "uk.gov.fcp.sfd.notification.request",
@@ -19,7 +19,8 @@ Update `commsAddresses` to your own email address.
             "john.doe@defra.gov.uk"
         ],
         "personalisation": {
-            "reference": "test-reference"
+            "reference": "test-reference",
+            "link_to_file": "http://localhost:3001/health"
         },
         "reference": "ffc-ahwr-example-reference",
         "oneClickUnsubscribeUrl": "https://unsubscribe.example.com",
