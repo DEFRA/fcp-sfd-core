@@ -20,7 +20,7 @@ Update `commsAddresses` to your own email address.
         ],
         "personalisation": {
             "species": "chicken",
-	        "reference": "test-reference",
+            "reference": "test-reference",
             "applicationReference": "test-application-reference",
             "amount": "100"
         },
