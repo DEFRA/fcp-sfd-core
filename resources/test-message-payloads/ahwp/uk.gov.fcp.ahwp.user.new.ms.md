@@ -2,7 +2,7 @@ Update `commsAddresses` to your own email address.
 
 ```
 {
-    "id": "123e4567-e89b-12d3-a456-426655440000",
+    "id": "FFD4A226-CD25-483B-9231-67E143F15657",
     "source": "ffc-ahwr-claim",
     "specversion": "1.0",
     "type": "uk.gov.fcp.sfd.notification.request",
