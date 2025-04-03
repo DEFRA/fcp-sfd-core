@@ -12,7 +12,7 @@ Update `commsAddresses` to your own email address.
         "crn": "1050000000",
         "sbi": "105000000",
         "sourceSystem": "ahwp",
-        "notifyTemplateId": "REPLACE",
+        "notifyTemplateId": "3f632459-b852-48a7-88db-5a3137efd7b2",
         "commsType": "email",
         "commsAddresses": [
             "jane.doe@defra.gov.uk",

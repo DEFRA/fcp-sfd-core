@@ -12,17 +12,18 @@ Update `commsAddresses` to your own email address.
         "crn": "1050000000",
         "sbi": "105000000",
         "sourceSystem": "ahwp",
-        "notifyTemplateId": "54b2bfd6-f0a1-4f31-a65a-e6c875da750e",
+        "notifyTemplateId": "8d5b8cdf-49b1-46f0-b34e-4de62eec857a",
         "commsType": "email",
         "commsAddresses": [
             "jane.doe@defra.gov.uk",
             "john.doe@defra.gov.uk"
         ],
         "personalisation": {
-            "species": "chicken",
-	        "reference": "test-reference",
-            "applicationReference": "test-application-reference",
-            "amount": "100"
+            "reference": "test-reference",
+            "link_to_file": {
+                "file": "SGVsbG8gd29ybGQK",
+                "filename": "attachment.txt"
+            }
         },
         "reference": "ffc-ahwr-example-reference",
         "oneClickUnsubscribeUrl": "https://unsubscribe.example.com",
