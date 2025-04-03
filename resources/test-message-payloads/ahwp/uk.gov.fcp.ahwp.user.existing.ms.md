@@ -19,7 +19,11 @@ Update `commsAddresses` to your own email address.
             "john.doe@defra.gov.uk"
         ],
         "personalisation": {
-	        "reference": "test-reference"
+	        "reference": "test-reference",
+            "link_to_file": {
+                "file": "SGVsbG8gd29ybGQK",
+                "filename": "attachment.txt"
+            }
         },
         "reference": "ffc-ahwr-example-reference",
         "oneClickUnsubscribeUrl": "https://unsubscribe.example.com",
