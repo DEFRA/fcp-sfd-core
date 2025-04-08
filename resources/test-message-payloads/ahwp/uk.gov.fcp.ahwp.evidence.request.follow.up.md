@@ -19,10 +19,11 @@ Update `commsAddresses` to your own email address.
             "john.doe@defra.gov.uk"
         ],
         "personalisation": {
-          "orgName": "Single Front Door Farms Ltd.",
-          "claimReference": "test-claim-reference",
-          "agreementReference": "test-agreement-reference",
-          "customSpeciesBullets": "chicken"
+            "sbi": "105000000",
+            "orgName": "Single Front Door Farms Ltd.",
+            "claimReference": "test-claim-reference",
+            "agreementReference": "test-agreement-reference",
+            "customSpeciesBullets": "chicken"
         },
         "reference": "ffc-ahwr-example-reference",
         "oneClickUnsubscribeUrl": "https://unsubscribe.example.com",
