@@ -1,4 +1,4 @@
-Update `commsAddresses` to your own email address.
+Update `recipient` to your own email address.
 
 ```
 {
