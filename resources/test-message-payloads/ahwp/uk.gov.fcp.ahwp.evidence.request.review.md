@@ -14,10 +14,7 @@ Update `commsAddresses` to your own email address.
         "sourceSystem": "ahwp",
         "notifyTemplateId": "bdc18e42-e542-44ff-855a-ea44b83dea9b",
         "commsType": "email",
-        "commsAddresses": [
-            "jane.doe@defra.gov.uk",
-            "john.doe@defra.gov.uk"
-        ],
+        "recipient": "jane.doe@defra.gov.uk",
         "personalisation": {
             "sbi": "105000000",
             "orgName": "Single Front Door Farms Ltd.",

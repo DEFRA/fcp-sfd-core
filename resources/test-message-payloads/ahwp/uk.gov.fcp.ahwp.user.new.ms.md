@@ -14,10 +14,7 @@ Update `commsAddresses` to your own email address.
         "sourceSystem": "ahwp",
         "notifyTemplateId": "8d5b8cdf-49b1-46f0-b34e-4de62eec857a",
         "commsType": "email",
-        "commsAddresses": [
-            "jane.doe@defra.gov.uk",
-            "john.doe@defra.gov.uk"
-        ],
+        "recipient": "jane.doe@defra.gov.uk",
         "personalisation": {
             "reference": "test-reference",
             "link_to_file": {

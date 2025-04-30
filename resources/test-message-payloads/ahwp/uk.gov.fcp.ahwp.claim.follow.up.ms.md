@@ -14,10 +14,7 @@ Update `commsAddresses` to your own email address.
         "sourceSystem": "ahwp",
         "notifyTemplateId": "3f632459-b852-48a7-88db-5a3137efd7b2",
         "commsType": "email",
-        "commsAddresses": [
-            "jane.doe@defra.gov.uk",
-            "john.doe@defra.gov.uk"
-        ],
+        "recipient": "jane.doe@defra.gov.uk",
         "personalisation": {
             "species": "chicken",
             "reference": "test-reference",
