@@ -1,4 +1,4 @@
-Update `commsAddresses` to your own email address.
+Update `recipient` to your own email address.
 
 ```
 {
@@ -14,10 +14,7 @@ Update `commsAddresses` to your own email address.
         "sourceSystem": "ahwp",
         "notifyTemplateId": "27ccdee6-d823-4adf-8958-68549f913747",
         "commsType": "email",
-        "commsAddresses": [
-            "jane.doe@defra.gov.uk",
-            "john.doe@defra.gov.uk"
-        ],
+        "recipient": "jane.doe@defra.gov.uk",
         "personalisation": {
             "applicationReference": "test-reference"
         },
