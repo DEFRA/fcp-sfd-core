@@ -1,0 +1,16 @@
+services:
+  fcp-sfd-object-processor:
+    build:
+      context: ../../fcp-sfd-object-processor
+      target: development
+    image: fcp-sfd-object-processor
+    container_name: fcp-sfd-object-processor
+    ports:
+      - 3004:3004
+    env_file:
+      - ../.env
+    volumes:
+      - ../../fcp-sfd-object-processor/src:/home/node/src
+      - ../../fcp-sfd-object-processor/package.json:/home/node/package.json
+    networks:
+      - fcp-sfd

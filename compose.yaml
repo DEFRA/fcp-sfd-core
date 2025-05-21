@@ -1,7 +1,9 @@
 include:
+  - service-compose/fcp-sfd-object-processor.yaml
+  - service-compose/fcp-sfd-messaging-gateway.yaml
+  - service-compose/fcp-sfd-frontend.yaml
   - service-compose/fcp-sfd-data.yaml
   - service-compose/fcp-sfd-comms.yaml
-  - service-compose/fcp-sfd-frontend.yaml
 services:
   localstack:
     image: localstack/localstack:3.0.2
