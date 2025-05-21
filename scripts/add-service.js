@@ -12,14 +12,8 @@ const constructCompose = async (serviceName, ports) => {
           context: `../../${serviceName}`,
           target: 'development'
         },
-        profiles: [
-          'fcp-sfd'
-        ],
         image: serviceName,
         container_name: serviceName,
-        networks: [
-          'fcp-sfd'
-        ],
         ports: [
           `${ports[0]}:${ports[0]}`
         ],
@@ -29,6 +23,9 @@ const constructCompose = async (serviceName, ports) => {
         volumes: [
           `../../${serviceName}/src:/home/node/src`,
           `../../${serviceName}/package.json:/home/node/package.json`
+        ],
+        networks: [
+          'fcp-sfd'
         ]
       }
     }
@@ -41,7 +38,7 @@ const constructCompose = async (serviceName, ports) => {
 }
 
 const addToParentCompose = async (path) => {
-  const parent = await fs.readFile(`${cwd}/docker-compose.yaml`, 'utf8')
+  const parent = await fs.readFile(`${cwd}/compose.yaml`, 'utf8')
 
   const compose = parse(parent)
 
@@ -56,7 +53,7 @@ const addToParentCompose = async (path) => {
   include.sort((a, b) => b.localeCompare(a))
 
   await fs.writeFile(
-    `${cwd}/docker-compose.yaml`,
+    `${cwd}/compose.yaml`,
     stringify(compose)
   )
 }
