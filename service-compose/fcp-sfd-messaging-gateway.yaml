@@ -1,0 +1,21 @@
+services:
+  fcp-sfd-messaging-gateway:
+    build:
+      context: ../../fcp-sfd-messaging-gateway
+      target: development
+    image: fcp-sfd-messaging-gateway
+    container_name: fcp-sfd-messaging-gateway
+    ports:
+      - 3003:3003
+    env_file:
+      - ../.env
+    environment:
+      PORT: 3003
+      NODE_ENV: development
+      SNS_ENDPOINT: http://localstack:4566
+      COMMS_GATEWAY_TOPIC_ARN: arn:aws:sns:eu-west-2:000000000000:fcp_sfd_comms_gateway
+    volumes:
+      - ../../fcp-sfd-messaging-gateway/src:/home/node/src
+      - ../../fcp-sfd-messaging-gateway/package.json:/home/node/package.json
+    networks:
+      - fcp-sfd
