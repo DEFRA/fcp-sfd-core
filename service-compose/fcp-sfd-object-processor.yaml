@@ -4,11 +4,15 @@ services:
       context: ../../fcp-sfd-object-processor
       target: development
     image: fcp-sfd-object-processor
-    container_name: fcp-sfd-object-processor
+    container_name: fcp-sfd-object-processor-development
     ports:
       - 3004:3004
     env_file:
       - ../.env
+    environment:
+      PORT: 3004
+      NODE_ENV: development
+      SNS_ENDPOINT: http://localstack:4566
     volumes:
       - ../../fcp-sfd-object-processor/src:/home/node/src
       - ../../fcp-sfd-object-processor/package.json:/home/node/package.json
