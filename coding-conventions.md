@@ -4,6 +4,7 @@ The following is a list of conventions we follow when working in the [fcp-sfc-co
 
 - [File names](#file-names)
 - [Functions](#functions)
+- [Use import instead of require](#use-import-instead-of-require)
 
 ## File names
 
@@ -32,4 +33,16 @@ function helloWorld () {
 const greet = function(name) {
   return 'Hello, world!'
 }
+```
+
+## Use import instead of require
+
+We are using ES6 modules in the codebase, so we standardise on using the `import` statement for importing modules rather
+than require.
+
+```javascript
+import { myFunction } from './utils/my-function.js'
+
+// Avoid - CommonJS syntax
+const myFunction = require('./utils/my-function.js')
 ```
