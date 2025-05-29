@@ -1,7 +1,8 @@
 include:
+  - service-compose/fcp-sfd-messaging-gateway.yaml
+  - service-compose/fcp-sfd-frontend.yaml
   - service-compose/fcp-sfd-data.yaml
   - service-compose/fcp-sfd-comms.yaml
-  - service-compose/fcp-sfd-frontend.yaml
 services:
   localstack:
     image: localstack/localstack:3.0.2
@@ -20,6 +21,7 @@ services:
       - ../fcp-sfd-data/compose/start-localstack.sh:/etc/localstack/init/ready.d/setup-fcp-sfd-data.sh
       - ../fcp-sfd-comms/compose/start-localstack.sh:/etc/localstack/init/ready.d/setup-fcp-sfd-comms.sh
       - ../fcp-sfd-frontend/compose/start-localstack.sh:/etc/localstack/init/ready.d/setup-fcp-sfd-frontend.sh
+      - ../fcp-sfd-messaging-gateway/compose/start-localstack.sh:/etc/localstack/init/ready.d/setup-fcp-sfd-messaging-gateway.sh
     healthcheck:
       test:
         - CMD
@@ -30,7 +32,6 @@ services:
       retries: 3
     networks:
       - fcp-sfd
-
   mongodb:
     image: mongo:6.0.13
     networks:
@@ -40,18 +41,15 @@ services:
     volumes:
       - mongodb-data:/data
     restart: always
-
   redis:
     image: redis:7.2.3-alpine3.18
     ports:
-      - '6379:6379'
+      - 6379:6379
     restart: always
     networks:
       - fcp-sfd
-
 volumes:
   mongodb-data:
-
 networks:
   fcp-sfd:
     name: fcp-sfd
