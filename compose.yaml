@@ -48,7 +48,7 @@ services:
     networks:
       - fcp-sfd
 volumes:
-  mongodb-data: null
+  mongodb-data:
 networks:
   fcp-sfd:
     name: fcp-sfd
