@@ -10,22 +10,19 @@ The following is a list of conventions we follow when working in the [fcp-sfc-co
 
 ## File names
 
-All file names should be [kebab-case](https://www.freecodecamp.org/news/snake-case-vs-camel-case-vs-pascal-case-vs-kebab-case-whats-the-difference/#kebab-case), for example `awesome-people.service.js`
+All file names should be [kebab-case](https://www.freecodecamp.org/news/snake-case-vs-camel-case-vs-pascal-case-vs-kebab-case-whats-the-difference/#kebab-case), for example `awesome-people-service.js`
 
 Other naming conventions are
 
-- general modules `thing.utils.js`
-- models `thing.model.js`
-- plugins `thing.plugin.js`
-- presenters `thing.presenter.js`
-- routes `thing.routes.js`
-- services `thing.service.js`
+- presenters `thing-presenter.js`
+- routes `thing-routes.js`
+- services `thing-service.js`
 
 To ensure cross-platform compatibility file names should always be written in lower case. This includes the use of acronyms in the file name. For example `convert-to-csv.service.js`.
 
-Unit test files should be the same as the thing being tested with `.test` added to the end, for example `thing.service.test.js`. The `test/` folder structure should mirror the `app/` folder.
+Unit test files should be the same as the thing being tested with `.test` added to the end, for example `thing-service.test.js`. The `test/` folder structure should mirror the `app/` folder.
 
-All file names should be [kebab-case] (https://www.freecodecamp.org/news/snake-case-vs-camel-case-vs-pascal-case-vs-kebab-case-whats-the-difference/#kebab-case), for example `awesome-people.js`
+All file names should be [kebab-case] (https://www.freecodecamp.org/news/snake-case-vs-camel-case-vs-pascal-case-vs-kebab-case-whats-the-difference/#kebab-case), for example `awesome-people-service.js`
 
 ## Functions
 
