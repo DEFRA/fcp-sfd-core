@@ -1,8 +1,12 @@
 include:
-  - service-compose/fcp-sfd-messaging-gateway.yaml
+  - service-compose/fcp-sfd-object-processor.yaml
+  # - service-compose/fcp-sfd-messaging-gateway.yaml
   - service-compose/fcp-sfd-frontend.yaml
-  - service-compose/fcp-sfd-data.yaml
-  - service-compose/fcp-sfd-comms.yaml
+  # - service-compose/fcp-sfd-data.yaml
+  # - service-compose/fcp-sfd-comms.yaml
+
+  # port clash for these services requires some rejigging because frontend has to use 3000 for defraId redirect
+  
 services:
   localstack:
     image: localstack/localstack:3.0.2
@@ -22,6 +26,7 @@ services:
       - ../fcp-sfd-comms/compose/start-localstack.sh:/etc/localstack/init/ready.d/setup-fcp-sfd-comms.sh
       - ../fcp-sfd-frontend/compose/start-localstack.sh:/etc/localstack/init/ready.d/setup-fcp-sfd-frontend.sh
       - ../fcp-sfd-messaging-gateway/compose/start-localstack.sh:/etc/localstack/init/ready.d/setup-fcp-sfd-messaging-gateway.sh
+      - ../fcp-sfd-object-processor/compose/start-localstack.sh:/etc/localstack/init/ready.d/setup-fcp-sfd-object-processor.sh
     healthcheck:
       test:
         - CMD
@@ -41,6 +46,7 @@ services:
     volumes:
       - mongodb-data:/data
     restart: always
+
   redis:
     image: redis:7.2.3-alpine3.18
     ports:
@@ -48,8 +54,35 @@ services:
     restart: always
     networks:
       - fcp-sfd
+
+  cdp-uploader:
+    image: defradigital/cdp-uploader:latest
+    env_file:
+      - 'compose/aws.env'
+    ports:
+      - '7337:7337'
+    networks:
+      - fcp-sfd
+    depends_on:
+      localstack:
+        condition: service_healthy
+    environment:
+      VIRTUAL_HOST: ~^uploader\..*\.sslip\.io
+      VIRTUAL_PATH: /
+      VIRTUAL_PORT: 7337
+      PORT: 7337
+      NODE_ENV: development
+      REDIS_HOST: redis
+      USE_SINGLE_INSTANCE_CACHE: true
+      MOCK_VIRUS_SCAN_ENABLED: true
+      MOCK_VIRUS_RESULT_DELAY: 3
+      SQS_ENDPOINT: http://localstack:4566
+      S3_ENDPOINT: http://localstack:4566
+      CONSUMER_BUCKETS: fcp-sfd-object-processor-bucket
+
 volumes:
-  mongodb-data:
+  mongodb-data: null
+
 networks:
   fcp-sfd:
     name: fcp-sfd
