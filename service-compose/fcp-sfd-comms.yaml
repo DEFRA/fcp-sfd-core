@@ -27,6 +27,7 @@ services:
       SQS_ENDPOINT: http://localstack:4566
       COMMS_REQUEST_QUEUE_URL: http://sqs.eu-west-2.127.0.0.1:4566/000000000000/fcp_sfd_comms_request
       COMMS_REQUEST_DEAD_LETTER_QUEUE_URL: http://sqs.eu-west-2.127.0.0.1:4566/000000000000/fcp_sfd_comms_request-deadletter
+      SNS_ENDPOINT: http://localstack:4566
       COMM_EVENTS_TOPIC_ARN: arn:aws:sns:eu-west-2:000000000000:fcp_sfd_comm_events
       FDM_QUEUE_URL: http://sqs.eu-west-2.127.0.0.1:4566/000000000000/fcp_fdm_events
       NOTIFY_API_KEY: ${NOTIFY_API_KEY}
