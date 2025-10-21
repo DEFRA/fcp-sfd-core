@@ -8,7 +8,7 @@ Local development support for orchestrating all Single Front Door microservices.
 
 ## Onboarding Guide
 
-For new software developers joining the SFD team, there is an [onboarding guide](https://github.com/DEFRA/fcp-sfd-core/blob/main/onboarding-guide/README.md) to get an instance of the local service up and running.
+For new software developers joining the SFD team, there is an [onboarding guide](https://github.com/DEFRA/fcp-sfd-core/blob/main/onboarding-guide/README.md) with useful links to help you get started.
 
 ## Repositories
 | Service | Type | Quality gate |

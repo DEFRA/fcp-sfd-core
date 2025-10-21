@@ -1,4 +1,4 @@
-Update `commsAddresses` to your own email address.
+Update `recipient` to your own email address.
 
 ```
 {
@@ -14,10 +14,7 @@ Update `commsAddresses` to your own email address.
         "sourceSystem": "ahwp",
         "notifyTemplateId": "32e4f0fc-cfe7-4545-bd6f-0b3389d40a22",
         "commsType": "email",
-        "commsAddresses": [
-            "jane.doe@defra.gov.uk",
-            "john.doe@defra.gov.uk"
-        ],
+        "recipient": "jane.doe@defra.gov.uk",
         "personalisation": {
             "sbi": "105000000",
             "orgName": "Single Front Door Farms Ltd.",
