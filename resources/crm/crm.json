@@ -1,0 +1,654 @@
+{
+	"info": {
+		"_postman_id": "6df9b9d4-59b3-4298-93c8-211caa09daaa",
+		"name": "CRM",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "28285986"
+	},
+	"item": [
+		{
+			"name": "Get Access Token",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "client_id",
+							"value": "get_the_client_id_from_bitwarden",
+							"type": "text"
+						},
+						{
+							"key": "client_secret",
+							"value": "get_the_client_secret_from_bitwarden",
+							"type": "text"
+						},
+						{
+							"key": "scope",
+							"value": "https://rpa-csc-devsandbox.api.crm4.dynamics.com/.default",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "client_credentials",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://login.microsoftonline.com/6f504113-6b64-43f2-ade9-242e05780007/oauth2/v2.0/token",
+					"protocol": "https",
+					"host": [
+						"login",
+						"microsoftonline",
+						"com"
+					],
+					"path": [
+						"6f504113-6b64-43f2-ade9-242e05780007",
+						"oauth2",
+						"v2.0",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Accounts",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{bearer_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": []
+				},
+				"url": {
+					"raw": "https://rpa-csc-devsandbox.api.crm4.dynamics.com/api/data/v9.2/accounts?$select=name,accountid,rpa_sbinumber,rpa_capfirmid&$filter=accountid eq '4cb7b45b-aba2-f011-bbd2-7ced8d4645a2'",
+					"protocol": "https",
+					"host": [
+						"rpa-csc-devsandbox",
+						"api",
+						"crm4",
+						"dynamics",
+						"com"
+					],
+					"path": [
+						"api",
+						"data",
+						"v9.2",
+						"accounts"
+					],
+					"query": [
+						{
+							"key": "$select",
+							"value": "name,accountid,rpa_sbinumber,rpa_capfirmid"
+						},
+						{
+							"key": "$filter",
+							"value": "accountid eq '4cb7b45b-aba2-f011-bbd2-7ced8d4645a2'"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Organisation",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://rpadevv9.crm4.dynamics.com/api/data/v9.2/accounts",
+							"protocol": "https",
+							"host": [
+								"rpadevv9",
+								"crm4",
+								"dynamics",
+								"com"
+							],
+							"path": [
+								"api",
+								"data",
+								"v9.2",
+								"accounts"
+							]
+						}
+					},
+					"status": "Unauthorized",
+					"code": 401,
+					"_postman_previewlanguage": "plain",
+					"header": [
+						{
+							"key": "Allow",
+							"value": "OPTIONS,GET,HEAD,POST"
+						},
+						{
+							"key": "x-ms-service-request-id",
+							"value": "2865e56f-7676-468c-ba26-139007590e39"
+						},
+						{
+							"key": "x-ms-service-request-id",
+							"value": "64b96835-e20a-4ab3-b2c1-700b03b481ca"
+						},
+						{
+							"key": "WWW-Authenticate",
+							"value": "Bearer authorization_uri=https://login.microsoftonline.com/6f504113-6b64-43f2-ade9-242e05780007/oauth2/authorize, resource_id=https://rpadevv9.crm4.dynamics.com/"
+						},
+						{
+							"key": "Strict-Transport-Security",
+							"value": "max-age=31536000; includeSubDomains"
+						},
+						{
+							"key": "REQ_ID",
+							"value": "64b96835-e20a-4ab3-b2c1-700b03b481ca"
+						},
+						{
+							"key": "CRM.ServiceId",
+							"value": "framework"
+						},
+						{
+							"key": "AuthActivityId",
+							"value": "77093d56-4993-49f1-b69e-a6159a90bc65"
+						},
+						{
+							"key": "NativeWebSession-Version",
+							"value": "2"
+						},
+						{
+							"key": "X-Source",
+							"value": "1269915522724313946225601101502719612258421431103578190137981642161681620097244137242"
+						},
+						{
+							"key": "X-Source",
+							"value": "180891901517144180209305110517423312821413910489140871071631449823416213124293249424"
+						},
+						{
+							"key": "Public",
+							"value": "OPTIONS,GET,HEAD,POST"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 23 Feb 2024 17:56:09 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "0"
+						}
+					],
+					"cookie": [],
+					"body": ""
+				}
+			]
+		},
+		{
+			"name": "Contacts",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{bearer_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://rpa-csc-devsandbox.api.crm4.dynamics.com/api/data/v9.2/contacts?$select=contactid,fullname,rpa_capcustomerid,emailaddress1&$filter=rpa_capcustomerid eq '2457846764'",
+					"protocol": "https",
+					"host": [
+						"rpa-csc-devsandbox",
+						"api",
+						"crm4",
+						"dynamics",
+						"com"
+					],
+					"path": [
+						"api",
+						"data",
+						"v9.2",
+						"contacts"
+					],
+					"query": [
+						{
+							"key": "$select",
+							"value": "contactid,fullname,rpa_capcustomerid,emailaddress1"
+						},
+						{
+							"key": "$filter",
+							"value": "rpa_capcustomerid eq '2457846764'"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Metadata",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{bearer_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://rpa-csc-devsandbox.api.crm4.dynamics.com/api/data/v9.2/$metadata",
+					"protocol": "https",
+					"host": [
+						"rpa-csc-devsandbox",
+						"api",
+						"crm4",
+						"dynamics",
+						"com"
+					],
+					"path": [
+						"api",
+						"data",
+						"v9.2",
+						"$metadata"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Case",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{bearer_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": []
+				},
+				"url": {
+					"raw": "https://rpa-csc-devsandbox.api.crm4.dynamics.com/api/data/v9.2/incidents?$select=title,caseorigincode,casetypecode&$filter=incidentid eq '1cb88a7b-51c9-f011-bbd3-7ced8d425d25'",
+					"protocol": "https",
+					"host": [
+						"rpa-csc-devsandbox",
+						"api",
+						"crm4",
+						"dynamics",
+						"com"
+					],
+					"path": [
+						"api",
+						"data",
+						"v9.2",
+						"incidents"
+					],
+					"query": [
+						{
+							"key": "$select",
+							"value": "title,caseorigincode,casetypecode"
+						},
+						{
+							"key": "$filter",
+							"value": "incidentid eq '1cb88a7b-51c9-f011-bbd3-7ced8d425d25'"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Case",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{bearer_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"caseorigincode\": \"100000002\",\r\n    \"casetypecode\": \"927350013\",\r\n    \"customerid_contact@odata.bind\": \"/contacts(91b8b45b-aba2-f011-bbd2-7ced8d4645a2)\",\r\n    \"rpa_Contact@odata.bind\": \"/contacts(91b8b45b-aba2-f011-bbd2-7ced8d4645a2)\",\r\n    \"rpa_Organisation@odata.bind\": \"/accounts(50b7b45b-aba2-f011-bbd2-7ced8d4645a2)\",\r\n    \"rpa_isunknowncontact\": \"false\",\r\n    \"rpa_isunknownorganisation\": \"false\",\r\n    \"title\": \"Test Case 8\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://rpa-csc-devsandbox.api.crm4.dynamics.com/api/data/v9.2/incidents?$select=incidentid,ticketnumber",
+					"protocol": "https",
+					"host": [
+						"rpa-csc-devsandbox",
+						"api",
+						"crm4",
+						"dynamics",
+						"com"
+					],
+					"path": [
+						"api",
+						"data",
+						"v9.2",
+						"incidents"
+					],
+					"query": [
+						{
+							"key": "$select",
+							"value": "incidentid,ticketnumber"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Case",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"caseorigincode\": \"100000002\",\r\n    \"casetypecode\": \"927350013\",\r\n    \"customerid_contact@odata.bind\": \"/contacts(83b8b45b-aba2-f011-bbd2-7ced8d4645a2)\",\r\n    \"rpa_Contact@odata.bind\": \"/contacts(83b8b45b-aba2-f011-bbd2-7ced8d4645a2)\",\r\n    \"rpa_Organisation@odata.bind\": \"/accounts(42b7b45b-aba2-f011-bbd2-7ced8d4645a2)\",\r\n    \"rpa_isunknowncontact\": \"false\",\r\n    \"rpa_isunknownorganisation\": \"false\",\r\n    \"title\": \"Online Submission - Bank Account Update\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://rpa-csc-devsandbox.api.crm4.dynamics.com/api/data/v9.2/incidents?$select=incidentid,ticketnumber",
+							"protocol": "https",
+							"host": [
+								"rpa-csc-devsandbox",
+								"api",
+								"crm4",
+								"dynamics",
+								"com"
+							],
+							"path": [
+								"api",
+								"data",
+								"v9.2",
+								"incidents"
+							],
+							"query": [
+								{
+									"key": "$select",
+									"value": "incidentid,ticketnumber"
+								}
+							]
+						}
+					},
+					"status": "No Content",
+					"code": 204,
+					"_postman_previewlanguage": "html",
+					"header": [
+						{
+							"key": "Cache-Control",
+							"value": "no-cache"
+						},
+						{
+							"key": "Allow",
+							"value": "OPTIONS,GET,HEAD,POST"
+						},
+						{
+							"key": "Content-Type",
+							"value": "text/html; charset=utf-8"
+						},
+						{
+							"key": "Expires",
+							"value": "-1"
+						},
+						{
+							"key": "Location",
+							"value": "https://rpa-csc-devsandbox.api.crm4.dynamics.com/api/data/v9.2/incidents(3e4c6b16-e3c6-f011-bbd3-7ced8d425d25)"
+						},
+						{
+							"key": "Set-Cookie",
+							"value": "last_commit_time=2025-11-21 14:05:33Z; expires=Fri, 21-Nov-2025 14:06:33 GMT; path=/; secure; HttpOnly"
+						},
+						{
+							"key": "x-ms-service-request-id",
+							"value": "b0f621fc-b3f0-47a2-940f-537cde4c8314"
+						},
+						{
+							"key": "Strict-Transport-Security",
+							"value": "max-age=31536000; includeSubDomains"
+						},
+						{
+							"key": "REQ_ID",
+							"value": "b0f621fc-b3f0-47a2-940f-537cde4c8314"
+						},
+						{
+							"key": "CRM.ServiceId",
+							"value": "CRMAppPool"
+						},
+						{
+							"key": "AuthActivityId",
+							"value": "ac1f7c2c-2201-41fc-bfd4-cecee48bc5b6"
+						},
+						{
+							"key": "x-ms-dop-hint",
+							"value": "48"
+						},
+						{
+							"key": "x-ms-ratelimit-time-remaining-xrm-requests",
+							"value": "1,199.92"
+						},
+						{
+							"key": "x-ms-ratelimit-burst-remaining-xrm-requests",
+							"value": "7997"
+						},
+						{
+							"key": "mise-correlation-id",
+							"value": "a2c87daa-6f0d-455f-8c30-532d2bc06af5"
+						},
+						{
+							"key": "OData-Version",
+							"value": "4.0"
+						},
+						{
+							"key": "OData-EntityId",
+							"value": "https://rpa-csc-devsandbox.api.crm4.dynamics.com/api/data/v9.2/incidents(3e4c6b16-e3c6-f011-bbd3-7ced8d425d25)"
+						},
+						{
+							"key": "X-Content-Type-Options",
+							"value": "nosniff"
+						},
+						{
+							"key": "X-Source",
+							"value": "928598227602222171315013058189143872311641566174105137226216136217226391252721533"
+						},
+						{
+							"key": "X-Source",
+							"value": "39843147225103209154021355158253616110720118702441301241721352543516415724713825285"
+						},
+						{
+							"key": "Public",
+							"value": "OPTIONS,GET,HEAD,POST"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 21 Nov 2025 14:05:33 GMT"
+						}
+					],
+					"cookie": [],
+					"body": null
+				}
+			]
+		},
+		{
+			"name": "Online Submission Activity",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{bearer_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"regardingobjectid_incident_rpa_onlinesubmission@odata.bind\": \"/incidents(248760fb-0dc9-f011-bbd3-7ced8d425d25)\",\r\n    // \"rpa_SubmissionType_rpa_onlinesubmission@odata.bind\": \"/rpa_documenttypeses(4e88916b-aae2-ee11-904c-000d3adc1ec9)\",\r\n    \"rpa_filesinsubmission\": \"0\",\r\n    \"rpa_onlinesubmission_activity_parties\": [\r\n        {\r\n            \"participationtypemask\": 1,\r\n            \"partyid_contact@odata.bind\": \"/contacts(83b8b45b-aba2-f011-bbd2-7ced8d4645a2)\"\r\n        },\r\n        {\r\n            \"participationtypemask\": 11,\r\n            \"partyid_account@odata.bind\": \"/accounts(42b7b45b-aba2-f011-bbd2-7ced8d4645a2)\"\r\n        }\r\n      ],\r\n      \"rpa_onlinesubmissiondate\": \"2023-01-01T14:12:11.000Z\",\r\n      \"rpa_onlinesubmissionid\": \"1234567\",\r\n    //  \"rpa_holdstatus1\": true,\r\n      \"rpa_genericcontrol1\":\"BANKVERIFY,DEACTIVATE,FRAUD,PROBATE,INACTIVE\",\r\n      \"rpa_genericerror1\":\"Invalid CRN(s)\",\r\n      \"rpa_genericcontrol2\":\"1234\",\r\n      \"subject\": \"Test Online Submission Activity created by Rana\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://rpa-csc-devsandbox.api.crm4.dynamics.com/api/data/v9.2/rpa_onlinesubmissions?$select=activityid",
+					"protocol": "https",
+					"host": [
+						"rpa-csc-devsandbox",
+						"api",
+						"crm4",
+						"dynamics",
+						"com"
+					],
+					"path": [
+						"api",
+						"data",
+						"v9.2",
+						"rpa_onlinesubmissions"
+					],
+					"query": [
+						{
+							"key": "$select",
+							"value": "activityid"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Error Handling",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{bearer_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"rpa_name\": \"123456792_1708519095\",\r\n    \"rpa_processingentity\": \"927350007\",\r\n    \"rpa_xmlmessage\": \"This is a test by Fay & Rana\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://rpa-csc-devsandbox.api.crm4.dynamics.com/api/data/v9.2/rpa_integrationinboundqueues",
+					"protocol": "https",
+					"host": [
+						"rpa-csc-devsandbox",
+						"api",
+						"crm4",
+						"dynamics",
+						"com"
+					],
+					"path": [
+						"api",
+						"data",
+						"v9.2",
+						"rpa_integrationinboundqueues"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "bearer_token",
+			"value": ""
+		}
+	]
+}
