@@ -1,6 +1,7 @@
 include:
   - service-compose/fcp-sfd-messaging-gateway.yaml
   - service-compose/fcp-sfd-frontend.yaml
+  - service-compose/fcp-sfd-frontend-internal.yaml
   - service-compose/fcp-sfd-data.yaml
   - service-compose/fcp-sfd-comms.yaml
 services:
@@ -20,7 +21,6 @@ services:
       - ${TMPDIR:-/tmp}/localstack:/var/lib/localstack
       - ../fcp-sfd-data/compose/start-localstack.sh:/etc/localstack/init/ready.d/setup-fcp-sfd-data.sh
       - ../fcp-sfd-comms/compose/start-localstack.sh:/etc/localstack/init/ready.d/setup-fcp-sfd-comms.sh
-      - ../fcp-sfd-frontend/compose/start-localstack.sh:/etc/localstack/init/ready.d/setup-fcp-sfd-frontend.sh
       - ../fcp-sfd-messaging-gateway/compose/start-localstack.sh:/etc/localstack/init/ready.d/setup-fcp-sfd-messaging-gateway.sh
     healthcheck:
       test:

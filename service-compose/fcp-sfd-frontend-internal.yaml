@@ -1,0 +1,28 @@
+services:
+  fcp-sfd-frontend-internal:
+    build:
+      context: ../../fcp-sfd-frontend-internal
+      target: development
+    image: fcp-sfd-frontend-internal-development
+    container_name: fcp-sfd-frontend-internal-development
+    ports:
+      - "3006:3006"
+    links:
+      - "localstack:localstack"
+      - "redis:redis"
+    depends_on:
+      localstack:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - ../../fcp-sfd-frontend-internal/src:/home/node/src
+      - ../../fcp-sfd-frontend-internal/package.json:/home/node/package.json
+    env_file:
+      - ../.env
+    environment:
+      PORT: 3006
+      NODE_ENV: development
+      SQS_ENDPOINT: http://localstack:4566
+    networks:
+      - fcp-sfd
