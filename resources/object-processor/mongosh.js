@@ -5,22 +5,29 @@
 // within mongosh change to the fcp-sfd-object-processor database 
 // use this command `use fcp-sfd-object-processor`
 
-const Crypto = require('crypto');
 
 const numberOfRecords = 110
 
+const generateUuids = (numberOfRecords) => {
+  return Array.from({ length: numberOfRecords }, () => {
+    const oid = new ObjectId().toString();
+    // Format as UUID with proper v4 version and variant bits
+    return `${oid.substring(0, 8)}-${oid.substring(8, 12)}-4${oid.substring(13, 16)}-8${oid.substring(17, 20)}-${oid.substring(20, 24)}00000000`
+  })
+}
+
 // Generate UUIDs upfront to use in both metadata and outbox records
-const fileIds = Array.from({ length: numberOfRecords }, () => Crypto.randomUUID())
+const fileIds = generateUuids(numberOfRecords)
 
 // Generate correlationIds upfront to use in both metadata and outbox records
-const correlationId = Array.from({ length: numberOfRecords }, () => Crypto.randomUUID())
+const correlationIds = generateUuids(numberOfRecords)
 
-// create teh payload that can be used across both metadata and outbox
+// create the payload that can be used across both metadata and outbox
 const createPayload = (i) => {
   return {
     metadata: {
-      sbi: `10500000${i}`,
-      crn: `105000000${i}`,
+      sbi: `105${String(i).padStart(6, '0')}`,
+      crn: `105${String(i).padStart(7, '0')}`,
       frn: `110265${8375 + i}`,
       submissionId: `173382${6312 + i}`,
       uosr: `107220${150 + i}_173382${6312 + i}`,
@@ -44,7 +51,7 @@ const createPayload = (i) => {
     },
     messaging: {
       publishedAt: null,
-      correlationId: correlationId[i]
+      correlationId: correlationIds[i]
     },
     raw: {
       uploadStatus: 'complete',
@@ -72,8 +79,8 @@ const outboxRecords = insertedIds.map((metadataId, i) => {
   return {
     messageId: metadataId, // Links to the metadata _id
     payload: createPayload(i),
-    status: 'PENDING',
-    attempts: 0,
+    status: 'FAILED', // PENDING and FAILED will be processed. SENT will not.
+    attempts: 1,
     createdAt: new Date()
   }
 })
