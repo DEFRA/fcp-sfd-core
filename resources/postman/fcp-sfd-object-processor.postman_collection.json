@@ -1,0 +1,144 @@
+{
+  "info": {
+    "_postman_id": "3c00f1e3-937b-466e-a693-5374a78b62ca",
+    "name": "fcp-sfd-object-processor",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "28285986"
+  },
+  "item": [
+    {
+      "name": "Process upload request",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"uploadStatus\": \"ready\",\n  \"metadata\": {\n    \"sbi\": 123456789,\n    \"crn\": 1234567890,\n    \"frn\": 1102658375,\n    \"submissionId\": \"0987654321\",\n    \"uosr\": \"123456789_0987654321\",\n    \"submissionDateTime\": \"10/12/2024 10:25:12\",\n    \"files\": [\"test-file.pdf\"],\n    \"filesInSubmission\": 1,\n    \"type\": \"CS_Agreement_Evidence\",\n    \"reference\": \"user entered reference\",\n    \"service\": \"fcp-sfd-frontend\"\n  },\n  \"form\": {\n    \"file1\": {\n      \"fileId\": \"aa0bd0ce-e254-40b4-84b6-f5acded17fe8\",\n      \"filename\": \"test-file.pdf\",\n      \"contentType\": \"application/pdf\",\n      \"fileStatus\": \"complete\",\n      \"contentLength\": 102400,\n      \"checksumSha256\": \"dGVzdGNoZWNrc3Vt\",\n      \"detectedContentType\": \"application/pdf\",\n      \"s3Key\": \"uploads/test-file.pdf\",\n      \"s3Bucket\": \"test-bucket\"\n    }\n  },\n  \"numberOfRejectedFiles\": 0\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3004/api/v1/callback",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3004",
+          "path": [
+            "api",
+            "v1",
+            "callback"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Retrieve blob",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3004/api/v1/blob/{fileId}",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3004",
+          "path": [
+            "api",
+            "v1",
+            "blob",
+            "{fileId}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Retrieve metadata",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3004/api/v1/metadata/sbi/{sbi}",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3004",
+          "path": [
+            "api",
+            "v1",
+            "metadata",
+            "sbi",
+            "{sbi}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Retrieve status",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3004/api/v1/status/{correlationId}",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3004",
+          "path": [
+            "api",
+            "v1",
+            "status",
+            "{correlationId}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3004/health",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3004",
+          "path": [
+            "health"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
