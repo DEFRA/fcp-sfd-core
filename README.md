@@ -16,6 +16,7 @@ For new software developers joining the SFD team, there is an [onboarding guide]
 | [fcp-sfd-comms](https://github.com/defra/fcp-sfd-comms) | Customer | [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_fcp-sfd-comms&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=DEFRA_fcp-sfd-comms) |
 | [fcp-sfd-data](https://github.com/defra/fcp-sfd-data) | Customer | [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_fcp-sfd-data&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=DEFRA_fcp-sfd-data) |
 | [fcp-sfd-frontend](https://github.com/defra/fcp-sfd-frontend) | Customer | [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_fcp-sfd-frontend&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=DEFRA_fcp-sfd-frontend) |
+| [fcp-sfd-frontend-internal](https://github.com/defra/fcp-sfd-frontend-internal) | Customer | [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_fcp-sfd-frontend-internal&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=DEFRA_fcp-sfd-frontend-internal) |
 
 ## Local Development
 
