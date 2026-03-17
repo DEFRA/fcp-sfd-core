@@ -159,7 +159,7 @@ curl --request GET \
 
 ## 6. GET blob reference by fileId
 curl --request GET \
-  --url https://fcp-sfd-object-processor.test.cdp-int.defra.cloud/api/v1/blob/{fileId} | jq
+  --url https://fcp-sfd-object-processor.perf-test.cdp-int.defra.cloud/api/v1/blob/{fileId} | jq
 
 ########################################
 
