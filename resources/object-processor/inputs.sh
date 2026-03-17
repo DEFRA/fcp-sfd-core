@@ -1,3 +1,9 @@
+# NOTE
+## If AUTH_COGNITO_ENABLED is true, ensure a bearer token is generated so requests made for retrieving metadata or blobs are authenticated.
+## Instructions are available on Confluence: https://eaflood.atlassian.net/wiki/spaces/SFD/pages/6468732912/Generate+Cognito+Bearer+token+for+use+with+Object-Processor
+
+########################################
+
 # DEV
 
 ## 1. Initiate (ensure to cross check the below payload with the OpenAPI spec available on fcp-sfd-object-processor: https://github.com/DEFRA/fcp-sfd-object-processor/blob/main/docs/openapi/v1.json)
