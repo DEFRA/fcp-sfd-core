@@ -626,6 +626,18 @@ Add the following sections to the README (adapt to the service's existing struct
 
 **Update existing build/run/test sections** to reference the new npm scripts as alternatives to raw Docker Compose commands. Fix any references from `standard` to `neostandard` and from `test:lint` to `lint`.
 
+### 9. Verify installed scripts
+After all changes are complete, run the following commands to verify the new scripts and tooling have been installed correctly. If any command fails, diagnose and fix the issue before finishing.
+
+- Run `npm run lint` to verify the linter is configured and runs without errors
+- Run `npm run lint:fix` to confirm the auto-fix variant works
+- Run `npm run docker:build` to verify the Docker build script is wired up correctly
+- Run `pre-commit run --all-files` (or `pre-commit run --config .pre-commit-config.yml --all-files` if using `.yml`) to confirm pre-commit hooks execute successfully
+- Run `node scripts/sonar-scan.js --help 2>&1 || true` to confirm the sonar scan script is loadable (a missing `SONAR_TOKEN` error is acceptable — it means the script loaded correctly)
+- Run `npm run test` to verify existing tests still pass and have not been broken by any of the changes
+
+If any command produces unexpected errors, fix the root cause and re-run the verification before marking the task as complete.
+
 ### Important notes
 - Do NOT modify any application source code, only tooling/config files
 - Keep all existing `docker:test` and `docker:test:watch` scripts unchanged (they use service-specific project names and compose files)
