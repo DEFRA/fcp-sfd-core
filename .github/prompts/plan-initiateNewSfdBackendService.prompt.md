@@ -8,7 +8,7 @@ Set up a new `fcp-sfd` backend project from the CDP (Core Delivery Platform) Nod
 
 ## Phase 1: Clean Up Template Tooling (Prettier, Babel, Husky, .vite)
 
-The CDP template ships with Prettier, Babel, and Husky. These are not used by fcp-sfd projects and should be removed.
+The CDP template ships with Prettier, Babel, and Husky. These are not used by `fcp-sfd` projects and should be removed.
 
 1. Delete Prettier config files if they exist: `.prettierrc.js` (or any `.prettier*`), `.prettierignore`
 2. Delete Babel config if it exists: `babel.config.cjs`
@@ -23,16 +23,16 @@ The CDP template ships with Prettier, Babel, and Husky. These are not used by fc
 
 Tests must live in a dedicated `test/` directory (not alongside source in `src/`), following the [Microservice test approach and repository structure](https://eaflood.atlassian.net/wiki/spaces/FPS/pages/1845396477/Microservice+test+approach+and+repository+structure). Test subfolders should be **flat** — do not mirror `src/` structure. File names should make it clear which module they relate to (e.g. `helpers-fail-action.test.js`).
 
-6. Create directory structure: `test/unit/`
-7. Move all `.test.js` files from `src/` into `test/unit/` using flat naming:
+1. Create directory structure: `test/unit/`
+2. Move all `.test.js` files from `src/` into `test/unit/` using flat naming:
    - Derive the test file name from the module path. For example:
      - `src/common/helpers/fail-action.test.js` → `test/unit/helpers-fail-action.test.js`
      - `src/common/helpers/proxy/setup-proxy.test.js` → `test/unit/helpers-setup-proxy.test.js`
      - `src/common/helpers/convict/validate-mongo-uri.test.js` → `test/unit/convict-validate-mongo-uri.test.js`
-8. Update import paths in each moved test file so they resolve to `../../src/...` and ensure tests import test functions or test case definitions where needed e.g. `describe`, `test`, `expect`, `beforeAll`, `afterEach` etc.
-9. Delete all example/template files from `src/`: any file with `example` in the name (e.g. `src/example-find.js`, `src/routes/example.js`)
-10. Update `src/plugins/router.js` to remove any example route imports/registrations
-11. Update `sonar-project.properties`:
+3. Update import paths in each moved test file so they resolve to `../../src/...` and ensure tests import required functions where needed, e.g. `describe`, `test`, `expect`, `beforeAll`, `afterEach` etc.
+5. Delete all example/template files from `src/`: any file with `example` in the name (e.g. `src/example-find.js`, `src/routes/example.js`)
+6. Update `src/plugins/router.js` to remove any example route imports/registrations
+7. Update `sonar-project.properties`:
     - `sonar.tests=test/`
     - `sonar.test.inclusions=test/**/*.test.js`
     - Remove `sonar.exclusions` for test files in `src/` (no longer needed)
@@ -41,30 +41,30 @@ Tests must live in a dedicated `test/` directory (not alongside source in `src/`
 
 ## Phase 3: Docker Compose & Environment Setup
 
-Standardise Docker Compose to use `.yaml` extension, the `fcp-sfd` network name, and a root `.env` file. Use `compose.yaml` as the shared base and `compose.override.yaml` for local development overrides (ports and bind mounts), following the same pattern as the `fcp-sfd-object-processor` example.
+Standardise Docker Compose to use `.yaml` extension, the `fcp-sfd` network name, and a root `.env` file. Use `compose.yaml` as the shared base and `compose.override.yaml` for local development overrides (ports and bind mounts), following the same pattern as the `fcp-sfd-object-processor` example. Replace LocalStack (requires paid license) with Floci (free open-source local AWS emulator). 
 
-12. Rename `compose.yml` → `compose.yaml` (if `.yml` extension exists)
-13. Edit `compose.yaml`:
+1. Rename `compose.yml` → `compose.yaml` (if `.yml` extension exists)
+2. Edit `compose.yaml`:
     - Remove any commented-out frontend service block
     - Remove `redis` service (not used)
     - Rename network from `cdp-tenant` to `fcp-sfd`
     - Remove all `env_file` references from `compose/aws.env` so that Docker Compose uses the default `.env` in the project's root
-    ```
+    ```yaml
     services:
-      govuk-notify-universal-comms:
+      {service-name}:
         build:
           target: development
-        image: govuk-notify-universal-comms-development
-        container_name: govuk-notify-universal-comms-development
+        image: {service-name}-development
+        container_name: {service-name}-development
         depends_on:
-          localstack:
-            condition: service_healthy
+          floci-init:
+            condition: service_completed_successfully
           mongodb:
             condition: service_started
         environment:
           PORT: 3001
           NODE_ENV: development
-          LOCALSTACK_ENDPOINT: http://localstack:4566
+          AWS_ENDPOINT_URL: http://floci:4566
           MONGO_URI: mongodb://mongodb:27017/
           AWS_REGION: eu-west-2
           AWS_DEFAULT_REGION: eu-west-2
@@ -76,24 +76,33 @@ Standardise Docker Compose to use `.yaml` extension, the `fcp-sfd` network name,
         networks:
           - fcp-sfd
 
-      localstack:
-        image: localstack/localstack:3.0.2
-        ports:
-          - '4566:4566' # LocalStack Gateway
-          - '4510-4559:4510-4559' # external services port range
+      floci:
+        image: hectorvent/floci:latest
         environment:
-          DEBUG: ${DEBUG:-1}
-          LS_LOG: WARN # Localstack DEBUG Level
-          SERVICES: s3,sqs,sns,firehose
-          LOCALSTACK_HOST: 127.0.0.1
+          FLOCI_HOSTNAME: floci
+          FLOCI_DEFAULT_REGION: eu-west-2
+          AWS_ACCESS_KEY_ID: test
+          AWS_SECRET_ACCESS_KEY: test
         volumes:
-          - '${TMPDIR:-/tmp}/localstack:/var/lib/localstack'
-          - ./compose/start-localstack.sh:/etc/localstack/init/ready.d/start-localstack.sh
-        healthcheck:
-          test: ['CMD', 'curl', 'localhost:4566']
-          interval: 5s
-          start_period: 5s
-          retries: 3
+          - '${TMPDIR:-/tmp}/floci:/app/data'
+        networks:
+          - fcp-sfd
+
+      floci-init:
+        image: amazon/aws-cli:latest
+        entrypoint: /bin/sh
+        command: /setup/init.sh
+        depends_on:
+          floci:
+            condition: service_started
+        environment:
+          AWS_ENDPOINT_URL: http://floci:4566
+          AWS_REGION: eu-west-2
+          AWS_DEFAULT_REGION: eu-west-2
+          AWS_ACCESS_KEY_ID: test
+          AWS_SECRET_ACCESS_KEY: test
+        volumes:
+          - ./floci/init.sh:/setup/init.sh
         networks:
           - fcp-sfd
 
@@ -101,8 +110,6 @@ Standardise Docker Compose to use `.yaml` extension, the `fcp-sfd` network name,
         image: mongo:6.0.13
         networks:
           - fcp-sfd
-        ports:
-          - '27017:27017'
         volumes:
           - mongodb-data:/data
         restart: always
@@ -117,7 +124,7 @@ Standardise Docker Compose to use `.yaml` extension, the `fcp-sfd` network name,
     ```
   - Keep `compose.yaml` as shared/base configuration and avoid local-only host port mappings and source bind mounts where possible
   - Move local development ports and bind mounts to `compose.override.yaml`:
-    ```
+    ```yaml
     services:
       {service-name}:
         ports:
@@ -129,33 +136,72 @@ Standardise Docker Compose to use `.yaml` extension, the `fcp-sfd` network name,
         networks:
           - fcp-sfd
 
-      localstack:
+      floci:
         ports:
-          - '4566:4566' # LocalStack Gateway
+          - '4566:4566' # Floci Gateway
           - '4510-4559:4510-4559' # external services port range
         volumes:
-          - '${TMPDIR:-/tmp}/localstack:/var/lib/localstack'
-          - ./compose/start-localstack.sh:/etc/localstack/init/ready.d/start-localstack.sh
+          - '${TMPDIR:-/tmp}/floci:/app/data'
+        networks:
+          - fcp-sfd
+
+      floci-init:
+        volumes:
+          - ./floci/init.sh:/setup/init.sh
+
       mongodb:
         ports:
           - '27017:27017'
-        networks:
-          - fcp-sfd
         volumes:
           - mongodb-data:/data
+        networks:
+          - fcp-sfd
 
     networks:
       fcp-sfd:
         driver: bridge
         name: fcp-sfd
     ```
-14. Delete `compose/aws.env` (values move to root `.env`)
-15. Create `.env` at project root with only values that cannot have a default set in the Docker Compose configuration:
+3. Delete `compose/aws.env` and remove any `compose/start-localstack.sh` script references (values move to root `.env`; Floci does not use LocalStack init hooks)
+4. Create `floci/init.sh` to initialise required local AWS resources (queues/topics/buckets) via AWS CLI and set executable permissions (`chmod +x floci/init.sh`). An example of a `floci/init.sh` script is provided below, but consider for each service what is actually needed (queues/topics/buckets):
+    ```bash
+    #!/usr/bin/env sh
+    
+    # Wait for Floci to be ready
+    until aws sqs list-queues > /dev/null 2>&1; do
+      sleep 1
+    done
+    
+    # Create SQS queues with DLQs
+    create_queue() {
+      local QUEUE_NAME=$1
+      local DLQ_NAME="${QUEUE_NAME}-deadletter"
+      
+      aws sqs create-queue --queue-name "${DLQ_NAME}" --region "${AWS_REGION}" ...
+      aws sqs create-queue --queue-name "${QUEUE_NAME}" --region "${AWS_REGION}" \
+        --attributes '{"VisibilityTimeout":"60","RedrivePolicy":"..."}'
+    }
+    
+    # Create SNS topics
+    create_topic() {
+      local TOPIC_NAME=$1
+      aws sns create-topic --name "${TOPIC_NAME}" --region "${AWS_REGION}"
+    }
+    
+    # Subscribe queues to topics
+    subscribe_queue_to_topic() { ... }
+    
+    # Call setup functions for each resource
+    create_queue "my_queue"
+    create_topic "my_topic"
+    subscribe_queue_to_topic "my_topic" "my_queue"
     ```
+5. Create `.env` at project root with only values that cannot have a default set in the Docker Compose configuration starting with the `SONAR_TOKEN` which developers will need for running local code scanning via the `sonar-scanner-cli`:
+    ```bash
     SONAR_TOKEN=your-personal-sonar-token
     ```
-16. Create `.env.example` with the same keys (for committed reference — `.env` is gitignored)
-17. Create `compose.test.yaml`:
+6. Create `.env.example` with the same keys (for committed reference — `.env` is gitignored)
+7. Create `compose.test.yaml`:
     ```yaml
     services:
       {service-name}:
@@ -168,57 +214,20 @@ Standardise Docker Compose to use `.yaml` extension, the `fcp-sfd` network name,
           - ./test:/home/node/test
           - ./coverage:/home/node/coverage
     ```
-18. Create `compose.test.watch.yaml`:
+8. Create `compose.test.watch.yaml`:
     ```yaml
     services:
       {service-name}:
         command: npm run test:watch
     ```
-19. Create `compose.debug.yaml`:
+9. Create `compose.debug.yaml`:
     ```yaml
     services:
       {service-name}:
         command: npm run start:debug
     ```
-19a. Create `compose.override.yaml` for local development overrides:
-    ```yaml
-    services:
-      {service-name}:
-        ports:
-          - '3001:3001'
-          - '9242:9229'
-        networks:
-          - fcp-sfd
-        volumes:
-          - ./src:/home/node/src
-          - ./package.json:/home/node/package.json
-
-      localstack:
-        ports:
-          - '4566:4566' # LocalStack Gateway
-          - '4510-4559:4510-4559' # external services port range
-        volumes:
-          - '${TMPDIR:-/tmp}/localstack:/var/lib/localstack'
-          - ./compose/start-localstack.sh:/etc/localstack/init/ready.d/start-localstack.sh
-
-      mongodb:
-        ports:
-          - '27017:27017'
-        networks:
-          - fcp-sfd
-        volumes:
-          - mongodb-data:/data
-
-    volumes:
-      mongodb-data:
-
-    networks:
-      fcp-sfd:
-        driver: bridge
-        name: fcp-sfd
+10. Replace the Dockerfile with the `fcp-sfd` standard Dockerfile:
     ```
-20. Replace the Dockerfile with the fcp-sfd standard Dockerfile:
-    ```dockerfile
     # development
     ARG PARENT_VERSION=latest-24
     ARG PORT=3001
@@ -268,8 +277,8 @@ Standardise Docker Compose to use `.yaml` extension, the `fcp-sfd` network name,
 
 Set up CI/CD workflows and a GitHub Copilot agent for SonarQube Cloud.
 
-21. Rename all workflow files from `.yml` → `.yaml`
-22. Set `check-pull-request.yaml` to the following content exactly (replacing `{service-name}` with the derived service name):
+1. Rename all workflow files from `.yml` → `.yaml`
+2. Set `check-pull-request.yaml` to the following content exactly (replacing `{service-name}` with the derived service name):
     ```yaml
     name: Check Pull Request
 
@@ -332,7 +341,7 @@ Set up CI/CD workflows and a GitHub Copilot agent for SonarQube Cloud.
               GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               SONAR_SCANNER_OPTS: "-Dsonar.verbose=true"
     ```
-23. Set `publish.yaml` to the following content exactly (replacing `{service-name}` with the derived service name):
+3. Set `publish.yaml` to the following content exactly (replacing `{service-name}` with the derived service name):
     ```yaml
     name: Publish
 
@@ -379,7 +388,7 @@ Set up CI/CD workflows and a GitHub Copilot agent for SonarQube Cloud.
             with:
               github-token: ${{ secrets.GITHUB_TOKEN }}
     ```
-24. Set `publish-hotfix.yaml` to the following content exactly (replacing `{service-name}` with the derived service name):
+4. Set `publish-hotfix.yaml` to the following content exactly (replacing `{service-name}` with the derived service name):
     ```yaml
     name: Publish Hot Fix
 
@@ -428,7 +437,7 @@ Set up CI/CD workflows and a GitHub Copilot agent for SonarQube Cloud.
             env:
               SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     ```
-25. Create `.github/workflows/pr-approval-bot.yaml` (posts merge guidance on PR approval) with the exact content as follows:
+5. Create `.github/workflows/pr-approval-bot.yaml` (posts merge guidance on PR approval) with the exact content as follows:
 ```yaml
 name: PR Approval Bot
 
@@ -452,114 +461,14 @@ jobs:
             If merging a minor version, nothing needs to be done as these are automatically handled and deployed by CDP.  
             Full details can be found in the [CDP documentation](https://portal.cdp-int.defra.cloud/documentation/how-to/microservices.md?q=bump%20a%20either%20the%20major%20or%20patch%20version%2C%20push%20a%20commit%20with#versioning-your-microservice).  
 ```
-26. Delete `.github/example.dependabot.yml` (if it exists)
-27. Create `.github/agents/sonarqube-cloud.agents.md` with the SonarQube Cloud Fix Agent definition exactly as shown below
-```md
----
-description: "Use when: SonarQube Cloud code scan fails, Sonar issues need fixing, code quality gate failed, fix issues, resolve violations, security hotspots, code smells, bugs found by SonarQube Cloud. Checks for existing scan results in the terminal first, then parses the output and implements fixes for all identified issues using SonarQube Cloud recommendations where applicable."
-tools: [execute, read, edit, search, todo, agent]
----
-
-You are a **SonarQube Cloud Fix Agent** — a specialist at running SonarQube Cloud scans, interpreting their output, and implementing fixes for all identified code quality and security issues.
-
-## Purpose
-
-Your job is to:
-
-1. Check the terminal for existing SonarQube Cloud scan results before doing anything else — never re-run if results already exist
-2. If the quality gate passed with 0 issues and 0 hotspots, report the clean result and STOP
-3. If there are issues, parse the scan output to identify all issues (bugs, vulnerabilities, code smells, security hotspots, failed quality gate conditions)
-4. For each issue, locate the affected source file and line
-5. Implement the fix directly in the codebase, following SonarQube Cloud's recommendations
-6. Re-run the scan to verify all issues are resolved
-
-## Constraints
-
-- DO NOT skip issues — fix every issue reported by the scan
-- DO NOT introduce new issues while fixing existing ones
-- DO NOT modify test files unless the issue is specifically in a test file
-- DO NOT change application behaviour — fixes must be functionally equivalent
-- DO NOT weaken security (e.g. suppressing warnings, disabling rules) instead of fixing the root cause
-- DO NOT re-run `npm run sonar` just because terminal output is truncated — truncation is normal and the quality gate summary is always visible at the end
-- ALWAYS prefer the fix recommended by SonarQube Cloud for each rule violation
-- ALWAYS run `npm run lint` after making changes to ensure no linting regressions and fix any that appear
-
-## Approach
-
-### Phase 1 — Check for Existing Results
-
-1. **First**, check for existing scan results using `#tool:terminal_last_command` to inspect recent terminal output
-2. **Terminal output is often truncated — this is normal and expected.** The truncation notice does NOT mean you need to re-run the scan. The quality gate summary block appears at the end of the scan output, so it will be visible even when earlier output is truncated.
-3. Look for the quality gate summary block — it contains everything needed: quality gate status (`✅ PASSED` or `❌ FAILED`), New Issues count, Security Hotspots count, and the SonarCloud dashboard URL
-4. **If the quality gate shows `✅ PASSED` with 0 New Issues and 0 Security Hotspots** — report the clean result to the user and STOP. There is nothing to fix. Do NOT re-run the scan.
-5. **If the quality gate shows `❌ FAILED`** or there are issues/hotspots — use whatever issue details are visible in the terminal output for Phase 2. If some issues are truncated, use the SonarCloud dashboard URL from the summary to review the full list. Do NOT re-run the scan.
-6. **Only if** no quality gate summary block (`SonarCloud Quality Gate:`) is found in the terminal output at all, run the SonarQube scan: `npm run sonar`
-
-### Phase 2 — Triage
-
-1. If the scan showed 0 issues and 0 security hotspots, skip to Phase 4 (report clean result)
-2. Parse every issue from the output. For each issue extract:
-   - Severity (BLOCKER, CRITICAL, MAJOR, MINOR, INFO)
-   - File path and line number
-   - Issue message and rule ID (e.g. `javascript:S1234`)
-   - SonarQube Cloud issue URL (for additional context)
-3. Create a todo list of all issues, ordered by severity (BLOCKER first)
-4. Group issues by file where possible to minimise context switches
-
-### Phase 3 — Fix
-
-6. For each issue:
-   a. Read the affected file and surrounding context
-   b. Use `#tool:sonarqube_analyze_file` on the file to get the full SonarQube Cloud rule description and recommended fix
-   c. Use `#tool:sonarqube_list_potential_security_issues` for any security hotspots or taint vulnerabilities
-   d. Implement the fix following SonarQube Cloud's recommendation
-   e. Mark the issue as completed in the todo list
-7. After all fixes, run `npm run lint` to check for linting regressions and fix any that appear
-
-### Phase 4 — Verify
-
-8. Re-run `npm run sonar` to confirm the quality gate now passes
-9. If new issues appear, repeat Phase 2–3 for those issues
-10. Report the final result to the user
-
-## Output Format
-
-When finished, provide a summary:
-
-```
-## SonarQube Fix Summary
-
-**Quality Gate**: PASSED / FAILED
-**Issues Fixed**: <count>
-**Files Modified**: <list>
-
-### Changes Made
-- <file>: <brief description of fix> (rule: <rule-id>)
-- ...
-
-### Remaining Issues (if any)
-- <issue description and why it could not be auto-fixed>
-```
-
-## Parsing Scan Output
-
-The scan output from `scripts/sonar-scan.js` follows this structure:
-
-- **Quality Gate block**: Bordered section with `SonarQube Cloud Quality Gate: ✅ PASSED` or `❌ FAILED`
-- **Metrics**: New Issues count, Coverage, Duplication, Security Hotspots
-- **Failed Conditions**: Listed under `⛔ Failed Conditions` with metric name, actual value, and threshold
-- **Issues block**: Headed by `🐛 Issues (<count> total)`, grouped by file (`📄 path/to/file`), each issue on a line like `🟡 L42 <message> (<rule>)` followed by a SonarQube Cloud URL
-- **Hotspots block**: Headed by `🔥 Security Hotspots`, each with probability rating, file, line, and message
-
-Use these patterns to reliably extract every issue from the output.
-```
+6. Delete `.github/example.dependabot.yml` (if it exists)
 
 ---
 
 ## Phase 5: Project Config Files
 
-28. Set `eslint.config.js` to: `export default neostandard({})`
-29. Set `vitest.config.js` to:
+1. Set `eslint.config.js` to: `export default neostandard({})`
+2. Set `vitest.config.js` to:
     ```js
     import { defineConfig } from 'vitest/config'
 
@@ -581,7 +490,7 @@ Use these patterns to reliably extract every issue from the output.
       }
     })
     ```
-30. Replace `package.json` scripts with:
+3. Replace `package.json` scripts with:
     ```json
     {
       "docker:build": "docker compose build",
@@ -602,14 +511,14 @@ Use these patterns to reliably extract every issue from the output.
       "start": "node --experimental-vm-modules src/index.js"
     }
     ```
-31. Remove unused devDependencies: `prettier`, `@babel/core`, `@babel/preset-env`, `husky`, `autoprefixer`, `npm-run-all`
-32. Update `.gitignore` — remove `.vscode` line so `.vscode/tasks.json` and `.vscode/launch.json` can be committed
+4. Remove unused devDependencies: `prettier`, `@babel/core`, `@babel/preset-env`, `husky`, `autoprefixer`, `npm-run-all`
+5. Update `.gitignore` — remove `.vscode` line so `.vscode/tasks.json` and `.vscode/launch.json` can be committed
 
 ---
 
 ## Phase 6: Pre-commit Hooks, VS Code Config, README
 
-33. Create `.pre-commit-config.yaml`:
+1. Create `.pre-commit-config.yaml`:
     ```yaml
     repos:
     - repo: https://github.com/Yelp/detect-secrets
@@ -625,9 +534,9 @@ Use these patterns to reliably extract every issue from the output.
           entry: npm run lint:fix
           language: node
     ```
-34. Run `detect-secrets scan > .secrets.baseline`
-35. Run `pre-commit install` then `pre-commit run --all-files`
-36. Create `.vscode/tasks.json` with tasks for all npm scripts (use correct script names: `docker:up`, `docker:up:d`, `docker:down`, `docker:down:v`, etc.):
+2. Run `detect-secrets scan > .secrets.baseline`
+3. Run `pre-commit install` then `pre-commit run --all-files`
+4. Create `.vscode/tasks.json` with tasks for all npm scripts (use correct script names: `docker:up`, `docker:up:d`, `docker:down`, `docker:down:v`, etc.):
 ```json
 {
   "version": "2.0.0",
@@ -699,15 +608,125 @@ Use these patterns to reliably extract every issue from the output.
   ]
 }
 ```
-37. Create `.vscode/launch.json` (Docker attach, port 9242)
-38. Replace `README.md` with the fcp-sfd standard README (substitute `{service-name}` throughout, ensure npm script references match Phase 5)
+5. Create `.vscode/launch.json` (Docker attach, port 9242)
+6. Replace and update the `README.md` with the following base template:
+```markdown
+  # {service-name}
+
+  ![Publish](https://github.com/defra/{service-name}/actions/workflows/publish.yaml/badge.svg)
+  [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_{service-name}&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=DEFRA_{service-name})
+  [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_{service-name}&metric=coverage)](https://sonarcloud.io/summary/new_code?id=DEFRA_{service-name})
+  [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_{service-name}&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=DEFRA_{service-name})
+
+  This service is part of the [Single Front Door (SFD) project](https://github.com/DEFRA/fcp-sfd-core).
+
+  ## Prerequisites
+
+  - Docker
+  - Docker Compose
+  - Node.js
+
+  ### SonarQube Cloud token
+
+  One of the npm scripts configured for this service enables code scanning by SonarQube Cloud. This will look for any issues and can be ran optionally before committing if the developer wishes to resolve issues during local development. This script helps ensure fewer issues are pushed to GitHub leading to earlier resolution of existing vulnerabilities. In order for this script to run successfully during local development you will need to generate your own personal `SONAR_TOKEN` and add it to your `.env`:
+
+  - Log into [SonarQube Cloud](https://sonarcloud.io/login).
+  - Navigate to your `My Account` settings.
+  - On the left-hand sidebar navigate to the `Security` tab.
+  - Under `Generate Tokens` enter a name for your token and click `Generate Token`.
+  - Copy the token and add it to your `.env`, referring to it as [`SONAR_TOKEN`](.env.example).
+
+  ## Pre-commit Hooks
+
+  For local development, this repository includes [`pre-commit` hooks](https://pre-commit.com/). These hooks allow for early identification of issues and vulnerabilities so that the developer can resolve any issues before pushing up to the public repository on GitHub. The hooks include:
+
+  - [`detect-secrets`](https://github.com/Yelp/detect-secrets): for detecting and preventing secrets in the codebase being pushed to public/open-source repositories.
+  - `eslint-fix`: a custom hook for running the linter, ESLint + [neostandard](https://www.npmjs.com/package/neostandard?activeTab=readme), to ensure consistent code formatting and styling and additionally uses the `--fix` option to automatically fix any identified issues where possible to reduce the need for manual correction.
+
+  To see the full output of the above hooks it is recommended to commit via the command line as using the source control panel does not provide the same feedback and loses sight of the `pre-commit` logs. All `pre-commit` hooks are listed in the [`.pre-commit-config.yaml`](.pre-commit-config.yaml) configuration file.
+
+  For these hooks to successfully apply during local development ensure  Python and its package manager, `pip3`, are installed on your machine. Installation of `pre-commit` can then be completed via `pip3`:
+
+  ```
+  pip3 install pre-commit
+  ```
+
+  ## Running the application
+
+  We recommend using the [fcp-sfd-core](https://github.com/DEFRA/fcp-sfd-core) repository for local development. You can however run this service independently by following the instructions below using either Docker Compose or the provided [npm scripts](./package.json). Alternatively, for VS Code users, a set of [VS Code tasks](.vscode/tasks.json) are available to use and can be access via the command palette: 
+
+  - `Ctrl` + `shift` + `P` on Windows or `Cmd` + `shift` + `P` on Mac.
+  - Select `Tasks: Run Task`.
+  - Choose from the available tasks listed.
+
+  ### Build container image
+
+  Container images are built using Docker Compose.
+
+  ```
+  npm run docker:build
+  docker compose build
+  ```
+
+  ### Start
+
+  Use Docker Compose to start running the service locally.
+
+  ```
+  npm run docker:up
+  npm run docker:up:d
+
+  docker compose up
+  ```
+
+  ## Tests
+
+  ### Test structure
+
+  The tests have been structured into sub-folders of `./test` as per the
+  [Microservice test approach and repository structure](https://eaflood.atlassian.net/wiki/spaces/FPS/pages/1845396477/Microservice+test+approach+and+repository+structure). 
+
+  Test mocks and sample payloads used by unit and integration tests are documented in the [mocks README](test/mocks/README.md).
+
+  ### Running tests
+
+  A convenience npm script is provided to run automated tests in a containerised
+  environment. This will rebuild images before running tests via Docker Compose,
+  using a combination of the `compose.yaml` and `compose.test.yaml` files.
+
+  ```
+  npm run docker:test
+  ```
+
+  Tests can also be started in watch mode to support Test Driven Development (TDD):
+
+  ```
+  npm run docker:test:watch
+  ```
+
+  ## Licence
+
+  THIS INFORMATION IS LICENSED UNDER THE CONDITIONS OF THE OPEN GOVERNMENT LICENCE found at:
+
+  <http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3>
+
+  The following attribution statement MUST be cited in your products and applications when using this information.
+
+  > Contains public sector information licensed under the Open Government license v3
+
+  ### About the licence
+
+  The Open Government Licence (OGL) was developed by the Controller of His Majesty's Stationery Office (HMSO) to enable information providers in the public sector to license the use and re-use of their information under a common open licence.
+
+  It is designed to encourage use and re-use of information freely and flexibly, with only a few conditions.
+```
 
 ---
 
 ## Phase 8: Add Scripts
 
-39. Create a `scripts` folder
-40. Inside the `scripts` folder create a file called `sonar-scan.js` and ensure this file includes the content below exactly:
+1. Create a `scripts` folder
+2. Inside the `scripts` folder create a file called `sonar-scan.js` and ensure this file includes the content below exactly:
 ```js
 import { readFileSync } from 'node:fs'
 import { execFileSync, spawn } from 'node:child_process'
@@ -1107,28 +1126,28 @@ sonarScan().catch((err) => {
   process.exit(1)
 })
 ```
-41. Install dependencies as needed for the above code scanning script
+3. Install dependencies as needed for the above code scanning script
 
 ---
 
 ## Phase 9: Update .gitignore
 
-42. Ignore `.github/agents`
-43. Ignore `.github/prompts`
-44. Ignore `.github/skills`
+1. Ignore `.github/agents`
+2. Ignore `.github/prompts`
+3. Ignore `.github/skills`
 
 ---
 
 ## Phase 10: Ask for Application Port and Debug Port Numbers
 
 The service port number is set in the following places:
-- `compose.yaml`
+- `compose.override.yaml`
 - `Dockerfile`
 - The `serviceConfig`  
 
 Additionally a debug port is set in the `Dockerfile`.
 
-45. Ask the user what port and debug ports they want to use for this service and then update all port references to match their answer
+1. Ask the user what port and debug ports they want to use for this service and then update all port references to match their answer
 
 ---
 
