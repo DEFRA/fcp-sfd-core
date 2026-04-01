@@ -42,9 +42,9 @@ Migrate from LocalStack (now requires paid license) to Floci (free, open-source 
    - Change: `localstack: { condition: service_healthy }` → `floci-init: { condition: service_completed_successfully }`
    - Ensures initialization runs before app starts
 
-4. **Update endpoint environment variables throughout the service:**
-   - Replace `http://localstack:4566` → `http://floci:4566` in all env vars throughout the service
-   - For host access (e.g., in `compose.override.yaml`): `http://localhost:4566` remains the same
+4. **Update endpoint environment variables in all services:**
+   - Replace `http://localstack:4566` → `http://floci:4566` in all env vars across all services
+   - For host access (e.g., in compose.override.yaml): `http://localhost:4566` remains the same
 
 5. **Update volume declarations:**
    - In `volumes:` section, replace `localstack-data:` → `floci-data:`
@@ -126,6 +126,53 @@ Migrate from LocalStack (now requires paid license) to Floci (free, open-source 
    - Update setup instructions (point to new `floci/init.sh` instead of old LocalStack script)
    - Update compose.yaml example to show Floci service + `floci-init` initialization
    - Remove LocalStack-specific configuration docs (e.g., LocalStack licensing, startup behavior)
+   - Add note about Floci benefits (free, native binary, ~90 MB image, ~24 ms startup)
+   - Include this section explaining how to interact with Floci locally outside of the Docker container (via `localhost:4566`, not `floci:4566`):
+
+     ```md
+     ### Floci
+
+     The following instructions relate to interacting with Floci locally (outside of the Docker container) on host port `localhost:4566`.
+
+     Prerequisites:
+     - Docker stack is running (`npm run docker:dev`)
+     - AWS CLI is installed (`aws --version`)
+
+     Set these variables in your terminal session:
+
+     ```bash
+     export AWS_ACCESS_KEY_ID=test
+     export AWS_SECRET_ACCESS_KEY=test
+     export AWS_ENDPOINT_URL=http://localhost:4566
+     export AWS_REGION=eu-west-2
+     ```
+
+     Examples:
+
+     ```bash
+     # List queues
+     aws sqs list-queues
+
+     # List topics
+     aws sns list-topics
+
+     # Check approximate message counts on a queue
+     aws sqs get-queue-attributes \
+      	--queue-url http://localhost:4566/000000000000/fcp_sfd_crm_requests \
+      	--attribute-names ApproximateNumberOfMessages ApproximateNumberOfMessagesNotVisible
+
+     # Read a message (without deleting it)
+     aws sqs receive-message \
+      	--queue-url http://localhost:4566/000000000000/fcp_sfd_crm_requests \
+      	--max-number-of-messages 1
+
+     # Purge all messages from a queue
+     aws sqs purge-queue \
+      	--queue-url http://localhost:4566/000000000000/fcp_sfd_crm_requests
+     ```
+
+     Note: use `http://localhost:4566` from your host shell. The `http://floci:4566` endpoint is only resolvable from within the Docker container(s).
+     ```
 
 3. **Copilot instructions:**
    - Update references: "Spins up MongoDB, LocalStack, ..." → "Spins up MongoDB, Floci, ..."
