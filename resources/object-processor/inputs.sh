@@ -6,8 +6,8 @@
 
 # DEV
 
-## 1. Initiate (ensure to cross check the below payload with the OpenAPI spec available on fcp-sfd-object-processor: https://github.com/DEFRA/fcp-sfd-object-processor/blob/main/docs/openapi/v1.json)
-curl -X POST https://cdp-uploader.dev.cdp-int.defra.cloud/initiate -d '{
+## 1. Initiate via object-processor uploader endpoint (ensure to cross check the below payload with the OpenAPI spec available on fcp-sfd-object-processor: https://github.com/DEFRA/fcp-sfd-object-processor/blob/main/docs/openapi/v1.json)
+curl -X POST https://fcp-sfd-object-processor.dev.cdp-int.defra.cloud/api/v1/uploader/initiate -d '{
   "redirect": "/health",
   "callback": "https://fcp-sfd-object-processor.dev.cdp-int.defra.cloud/api/v1/callback",
   "s3Bucket": "dev-fcp-sfd-object-processor-bucket-c63f2",
@@ -18,19 +18,16 @@ curl -X POST https://cdp-uploader.dev.cdp-int.defra.cloud/initiate -d '{
     "frn": 1102658375,
     "submissionId": "1733826312",
     "uosr": "138190174_1733826312",
-    "submissionDateTime": "10/12/2024 10:25:12",
-    "files": ["107220150_1733826312_SBI107220150.pdf"],
-    "filesInSubmission": 1,
     "type": "CS_Agreement_Evidence",
     "reference": "Hello SFD S&T Test",
     "service": "fcp-sfd-frontend"
   }
 }' -H "Content-Type: application/json" | jq
 
-## 2. Upload file direct to cdp-uploader, triggers callback (change the uploadId to match the one from output given in step 1)
-### Note: files must be uploaded to the terminal first!
+## 2. Upload file direct to cdp-uploader using uploadUrl from step 1 response, triggers callback
+### Note: files must be uploaded to the terminal first! (ensure file name matches the associated reference in the POST request e.g. upload-example-1.jpg)
 curl --request POST \
-  --url https://cdp-uploader.dev.cdp-int.defra.cloud/upload-and-scan/{uploadId} \
+  --url {uploadUrl} \
   --header 'Content-Type: multipart/form-data' \
   --form 'file=@/home/cdpshell/upload-example-1.jpg'
 
@@ -61,8 +58,8 @@ curl --request GET \
 
 # TEST
 
-## 1. Initiate (ensure to cross check the below payload with the OpenAPI spec available on fcp-sfd-object-processor: https://github.com/DEFRA/fcp-sfd-object-processor/blob/main/docs/openapi/v1.json)
-curl -X POST https://cdp-uploader.test.cdp-int.defra.cloud/initiate -d '{
+## 1. Initiate via object-processor uploader endpoint (ensure to cross check the below payload with the OpenAPI spec available on fcp-sfd-object-processor: https://github.com/DEFRA/fcp-sfd-object-processor/blob/main/docs/openapi/v1.json)
+curl -X POST https://fcp-sfd-object-processor.test.cdp-int.defra.cloud/api/v1/uploader/initiate -d '{
   "redirect": "/health",
   "callback": "https://fcp-sfd-object-processor.test.cdp-int.defra.cloud/api/v1/callback",
   "s3Bucket": "test-fcp-sfd-object-processor-bucket-6bf3a",
@@ -73,9 +70,6 @@ curl -X POST https://cdp-uploader.test.cdp-int.defra.cloud/initiate -d '{
     "frn": 1102658375,
     "submissionId": "1733826312",
     "uosr": "138190174_1733826312",
-    "submissionDateTime": "10/12/2024 10:25:12",
-    "files": ["107220150_1733826312_SBI107220150.pdf"],
-    "filesInSubmission": 1,
     "type": "CS_Agreement_Evidence",
     "reference": "Hello SFD S&T Test",
     "service": "fcp-sfd-frontend"
@@ -83,10 +77,10 @@ curl -X POST https://cdp-uploader.test.cdp-int.defra.cloud/initiate -d '{
 }' -H "Content-Type: application/json" | jq
 
 
-## 2. Upload file direct to cdp-uploader, triggers callback (change the uploadId to match the one from output given in step 1)
-### Note: files must be uploaded to the terminal first!
+## 2. Upload file direct to cdp-uploader using uploadUrl from step 1 response, triggers callback
+### Note: files must be uploaded to the terminal first! (ensure file name matches the associated reference in the POST request e.g. upload-example-1.jpg)
 curl --request POST \
-  --url https://cdp-uploader.test.cdp-int.defra.cloud/{uploadId} \
+  --url {uploadUrl} \
   --header 'Content-Type: multipart/form-data' \
   --form 'file=@/home/cdpshell/hello-sfd.docx'
 
@@ -117,8 +111,8 @@ curl --request GET \
 
 # PERF-TEST
 
-## 1. Initiate (ensure to cross check the below payload with the OpenAPI spec available on fcp-sfd-object-processor: https://github.com/DEFRA/fcp-sfd-object-processor/blob/main/docs/openapi/v1.json)
-curl -X POST https://cdp-uploader.perf-test.cdp-int.defra.cloud/initiate -d '{
+## 1. Initiate via object-processor uploader endpoint (ensure to cross check the below payload with the OpenAPI spec available on fcp-sfd-object-processor: https://github.com/DEFRA/fcp-sfd-object-processor/blob/main/docs/openapi/v1.json)
+curl -X POST https://fcp-sfd-object-processor.perf-test.cdp-int.defra.cloud/api/v1/uploader/initiate -d '{
   "redirect": "/health",
   "callback": "https://fcp-sfd-object-processor.perf-test.cdp-int.defra.cloud/api/v1/callback",
   "s3Bucket": "perf-test-fcp-sfd-object-processor-bucket-05244",
@@ -129,19 +123,16 @@ curl -X POST https://cdp-uploader.perf-test.cdp-int.defra.cloud/initiate -d '{
     "frn": 1102658375,
     "submissionId": "1733826312",
     "uosr": "138190174_1733826312",
-    "submissionDateTime": "10/12/2024 10:25:12",
-    "files": ["107220150_1733826312_SBI107220150.pdf"],
-    "filesInSubmission": 1,
     "type": "CS_Agreement_Evidence",
     "reference": "Hello SFD S&T Test",
     "service": "fcp-sfd-frontend"
   }
 }' -H "Content-Type: application/json" | jq
 
-## 2. Upload file direct to cdp-uploader, triggers callback (change the uploadId to match the one from output given in step 1)
-### Note: files must be uploaded to the terminal first!
+## 2. Upload file direct to cdp-uploader using uploadUrl from step 1 response, triggers callback
+### Note: files must be uploaded to the terminal first! (ensure file name matches the associated reference in the POST request e.g. upload-example-1.jpg)
 curl --request POST \
-  --url https://cdp-uploader.perf-test.cdp-int.defra.cloud/{uploadId} \
+  --url {uploadUrl} \
   --header 'Content-Type: multipart/form-data' \
   --form 'file=@/home/cdpshell/hello-sfd.docx'
 
