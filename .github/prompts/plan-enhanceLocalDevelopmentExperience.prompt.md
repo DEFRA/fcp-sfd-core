@@ -1,4 +1,4 @@
-# Reusable Copilot Prompt: Enhance Local Dev Experience
+# Plan: Enhance Local Development Experience on Single Front Door
 
 Copy the following prompt and use it in each Single Front Door (SFD) service repo. Replace `{SERVICE_NAME}` with the actual service name (e.g., `fcp-sfd-object-processor`, `fcp-sfd-frontend`).
 
