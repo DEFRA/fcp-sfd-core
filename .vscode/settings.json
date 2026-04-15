@@ -1,0 +1,42 @@
+{
+  "editor.rulers": [
+    { "column": 80, "color": "#857f85" },
+    { "column": 120, "color": "#ff0000a8" }
+  ],
+  "[git-commit]": {
+    "editor.rulers": [
+      { "column": 50, "color": "#ff0000a8" }
+    ]
+  },
+  "files.trimFinalNewlines": true,
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "standard.enable": true,
+  "standard.usePackageJson": true,
+  "javascript.format.insertSpaceBeforeFunctionParenthesis": true,
+  "javascript.preferences.importModuleSpecifierEnding": "js",
+  "workbench.colorCustomizations": {
+    "activityBar.background": "#d4ee50",
+    "activityBar.foreground": "#000",
+    "titleBar.activeForeground": "#000",
+    "titleBar.activeBackground": "#d4ee50",
+    "titleBar.inactiveForeground": "#000000CC",
+    "titleBar.inactiveBackground": "#221cc0",
+    "statusBar.background": "#d4ee50",
+    "statusBar.foreground": "#000",
+    "statusBarItem.hoverBackground": "#221cc0"
+  },
+  "cSpell.words": [
+    "Backlink",
+    "endfor",
+    "fieldset",
+    "govuk",
+    "IAHW",
+    "initialised",
+    "organisation",
+    "osdatahub",
+    "prioritises",
+    "unstate",
+    "uprn"
+  ]
+}
