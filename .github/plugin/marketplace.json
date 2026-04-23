@@ -1,0 +1,18 @@
+{
+  "name": "fcp-sfd-copilot",
+  "owner": {
+    "name": "Single Front Door (SFD)"
+  },
+  "metadata": {
+    "description": "Curated plugins for the Single Front Door development team",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "ecs-logging-compliance",
+      "description": "Audit and ensure use of ECS logging on CDP-hosted services is compliant",
+      "version": "1.0.0",
+      "source": "./fcp-sfd-copilot/ecs-logging-compliance"
+    }
+  ]
+}
