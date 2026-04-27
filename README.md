@@ -10,6 +10,14 @@ Local development support for orchestrating all Single Front Door microservices.
 
 For new software developers joining the SFD team, there is an [onboarding guide](https://github.com/DEFRA/fcp-sfd-core/blob/main/onboarding-guide/README.md) with useful links to help you get started.
 
+## Housekeeping
+
+> ❗️All developers should run housekeeping regularly ❗️
+
+To keep your local environment up to date and avoid issues across our repos, we recommend running the housekeeping tasks on a regular basis. These tasks ensure you’re working with the latest code, dependencies, and configuration used across the team.
+
+We use VS Code tasks to run housekeeping. Please see [`housekeeping/README.md`](./housekeeping/README.md) for full instructions on how to run them and what each task does.
+
 ## Repositories
 | Service | Type | Quality gate |
 | --- | --- | --- |
@@ -69,7 +77,7 @@ npm run add-service
 ```
 
 ### Databases
-For the ease of local development we are using local instance of mongoDB 
+For the ease of local development we are using local instance of mongoDB
 
 
 ## Script Documentation

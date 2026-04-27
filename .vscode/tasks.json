@@ -1,0 +1,244 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "⬆️ Up SFD",
+      "detail": "Start the SFD containers",
+      "type": "shell",
+      "command": "${workspaceFolder}/scripts/compose-repos.sh",
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": true
+      }
+    },
+    {
+      "label": "⬇️ Down SFD",
+      "detail": "Stop and drop the containers",
+      "type": "shell",
+      "command": "${workspaceFolder}/scripts/docker-down.sh",
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": true
+      }
+    },
+    {
+      "label": "⏹️ Stop SFD",
+      "detail": "Just stop the containers",
+      "type": "shell",
+      "command": "docker compose stop && echo \"All done! 🎉\"",
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": true
+      }
+    },
+    {
+      "label": "🧹 Clean SFD",
+      "detail": "Will drop the containers, remove related images and volumes",
+      "type": "shell",
+      "command": "docker compose down --rmi local -v && echo \"All done! 🎉\"",
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": true
+      }
+    },
+    {
+      "label": "💻 Open SFD",
+      "detail": "Will connect to a docker container and open the shell",
+      "type": "shell",
+      "command": "docker compose exec ${input:services} /bin/bash",
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": false
+      }
+    },
+    {
+      "label": "💾 Repos SFD",
+      "detail": "Clone all the repos used by fcp-sfd",
+      "type": "shell",
+      "command": "${workspaceFolder}/scripts/repos.sh",
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "args": [
+        "${workspaceFolder}"
+      ]
+    },
+    {
+      "label": "🪄 Magic SFD",
+      "detail": "Setup all our vscode magic in the repos",
+      "type": "shell",
+      "command": "${workspaceFolder}/scripts/vscode-magic.sh",
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "args": [
+        "${workspaceFolder}"
+      ]
+    },
+    {
+      "label": "🔄 Refresh SFD",
+      "detail": "Refresh back to main branch and pull all the repos used by fcp-sfd",
+      "type": "shell",
+      "command": "${workspaceFolder}/scripts/refresh.sh",
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "args": [
+        "${workspaceFolder}"
+      ]
+    },
+    {
+      "label": "⚙️ Update SFD",
+      "detail": "Run npm ci for each of the repos",
+      "type": "shell",
+      "command": "${workspaceFolder}/scripts/npm_ci_local.sh ${workspaceFolder} && docker compose exec dev /bin/bash -c '/home/scripts/npm_ci_docker.sh';echo \"All done! 🎉\"",
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": true
+      }
+    },
+    {
+      "label": "☝️ Only SFD",
+      "detail": "Will start only the selected service's container",
+      "type": "shell",
+      "command": "docker compose up ${input:services}",
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": false
+      }
+    },
+    {
+      "label": "🧲 Latest (SFD core)",
+      "detail": "Get the latest dev-environment code",
+      "type": "shell",
+      "command": "git checkout main && git pull && echo \"All done! 🎉\"",
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": true
+      }
+    },
+    // Pass in the service name to tail the logs
+    {
+      "label": "🪵 Log (SFD)",
+      "detail": "Show the container logs for an app",
+      "type": "shell",
+      "command": "docker compose exec dev /bin/bash -c 'pm2 log ${input:apps} --lines 100'",
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": true
+      }
+    },
+    {
+      "label": "🌈 Settings (SFD)",
+      "detail": "Add vscode settings and colourise your repos",
+      "type": "shell",
+      "command": "${workspaceFolder}/scripts/vscode-settings.sh",
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "args": [
+        "${workspaceFolder}"
+      ]
+    },
+    // We don't even have the prorotype repo
+    {
+      "label": "🎨 Prototype (SFD)",
+      "detail": "Start the prototype",
+      "type": "shell",
+      "command": "docker compose exec dev /bin/bash -c 'cd /home/repos/wrls-prototype && NODE_ENV=development npm run dev'",
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": true
+      }
+    }
+  ],
+  "inputs": [
+    {
+      "id": "services",
+      "description": "Services running in docker",
+      "type": "pickString",
+      "options": [
+        "frontend-external",
+        "frontend-internal",
+        "comms",
+        "comms-publisher-stub",
+        "crm",
+        "object-processor"
+      ]
+    }
+  ]
+}
