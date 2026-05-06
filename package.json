@@ -22,7 +22,7 @@
   },
   "homepage": "https://github.com/DEFRA/fcp-sfd-core#readme",
   "dependencies": {
-    "shelljs": "0.8.5",
+    "shelljs": "0.10.0",
     "yaml": "^2.7.0"
   }
 }
