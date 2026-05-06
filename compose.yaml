@@ -33,7 +33,7 @@ services:
     networks:
       - fcp-sfd
   mongodb:
-    image: mongo:6.0.13
+    image: mongo:8.2.7
     networks:
       - fcp-sfd
     ports:
