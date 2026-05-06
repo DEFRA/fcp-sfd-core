@@ -6,7 +6,7 @@ include:
   - service-compose/fcp-sfd-comms.yaml
 services:
   localstack:
-    image: localstack/localstack:3.0.2
+    image: localstack/localstack:4.14.0
     ports:
       - 4566:4566
       - 4510-4559:4510-4559
