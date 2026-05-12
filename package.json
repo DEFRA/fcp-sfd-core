@@ -4,6 +4,9 @@
   "description": "Repo to support local development of Single Front Door Microservices",
   "type": "module",
   "main": "scripts/index.js",
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "scripts": {
     "add-service": "node scripts/add-service.js",
     "clone": "node scripts/clone.js",
