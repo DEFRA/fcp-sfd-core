@@ -31,7 +31,8 @@ updates:
     schedule:
       interval: "weekly"
     commit-message:
-      prefix: "chore"    groups:
+      prefix: "chore"
+    groups:
       core-actions:
         patterns:
           - "actions/*"
