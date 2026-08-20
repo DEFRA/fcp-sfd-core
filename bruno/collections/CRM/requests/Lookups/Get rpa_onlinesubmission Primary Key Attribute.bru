@@ -1,0 +1,28 @@
+meta {
+  name: Get rpa_onlinesubmission Primary Key Attribute
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{CRM_URL}}/EntityDefinitions(LogicalName='rpa_onlinesubmission')?$select=LogicalName,PrimaryIdAttribute
+  body: none
+  auth: inherit
+}
+
+params:query {
+  $select: LogicalName,PrimaryIdAttribute
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  Confirms the PrimaryIdAttribute for rpa_onlinesubmission is activityid,
+  not rpa_onlinesubmissionid (which is a separate, non-key text attribute).
+  This is the fact documented in the JSDoc above
+  getOnlineSubmissionActivityId in src/repos/crm.js — rpa_onlinesubmissionid
+  must never be used to address the entity.
+}

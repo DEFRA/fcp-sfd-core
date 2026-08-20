@@ -1,0 +1,35 @@
+meta {
+  name: Get rpa_submissiontype Lookup Targets
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{CRM_URL}}/EntityDefinitions(LogicalName=%27rpa_onlinesubmission%27)/Attributes(LogicalName=%27rpa_submissiontype%27)/Microsoft.Dynamics.CRM.LookupAttributeMetadata?$select=SchemaName,LogicalName,Targets
+  body: none
+  auth: inherit
+}
+
+params:query {
+  $select: SchemaName,LogicalName,Targets
+}
+
+headers {
+  Authorization: 
+  Accept: application/json
+  OData-MaxVersion: 4.0
+  OData-Version: 4.0
+}
+
+settings {
+  encodeUrl: false
+  timeout: 0
+}
+
+docs {
+  Reads the rpa_submissiontype lookup attribute's metadata via the
+  LookupAttributeMetadata cast, to find which entities it's allowed to
+  target (Targets array). Feed one of the returned logical names into
+  "Resolve EntitySetName by LogicalName" to get the entity set name to
+  query it through.
+}

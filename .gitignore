@@ -137,3 +137,8 @@ dist
 
 repos/
 !.npmrc
+
+# Bruno environments hold live client secrets and access tokens once
+# populated — only the blank example template is tracked.
+bruno/collections/*/environments/*.bru
+!bruno/collections/*/environments/example.bru

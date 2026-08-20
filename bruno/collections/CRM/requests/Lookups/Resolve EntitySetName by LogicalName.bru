@@ -1,0 +1,37 @@
+meta {
+  name: Resolve EntitySetName by LogicalName
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{CRM_URL}}/EntityDefinitions(LogicalName=%27%3Ctarget-from-Targets%3E%27)?$select=LogicalName,EntitySetName
+  body: none
+  auth: inherit
+}
+
+params:query {
+  $select: LogicalName,EntitySetName
+}
+
+headers {
+  Authorization: 
+  Accept: application/json
+}
+
+settings {
+  encodeUrl: false
+  timeout: 0
+}
+
+docs {
+  Generic helper: given an entity's LogicalName, returns its EntitySetName —
+  the plural form actually used in Web API URLs, which does not always
+  match the logical name. Replace <target-from-Targets> in the URL with the
+  logical name you're resolving. Used repeatedly during the
+  duplicate-detection investigation after guessing the wrong entity set
+  name directly — e.g. duplicaterecord resolves to duplicaterecords
+  (simple plural), needed after two earlier guesses (duplicaterecord,
+  duplicaterule_association) both 404'd, feeding "Check Logged Duplicate
+  Matches for Rule".
+}

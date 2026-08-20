@@ -1,0 +1,78 @@
+meta {
+  name: Get Account by SBI
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{CRM_URL}}/accounts?$select=accountid,rpa_sbinumber&$filter=rpa_sbinumber eq '{{sbi}}'
+  body: none
+  auth: inherit
+}
+
+params:query {
+  $select: accountid,rpa_sbinumber
+  $filter: rpa_sbinumber eq '{{sbi}}'
+}
+
+vars:pre-request {
+  sbi: 163433225
+}
+
+script:post-response {
+  const response = res.getBody();
+  bru.setEnvVar("ORG_IR", response.value[0].accountid);
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  Looks up the account (organisation) record by SBI number and stores its
+  accountid as the ORG_IR env var, for use in requests that create or
+  reference a case's rpa_Organisation binding. Enable the $filter param and
+  set the SBI value before running.
+}
+
+example {
+  name: Organisation
+  
+  request: {
+    url: https://rpadevv9.crm4.dynamics.com/api/data/v9.2/accounts
+    method: GET
+    mode: none
+  }
+  
+  response: {
+    headers: {
+      Allow: OPTIONS,GET,HEAD,POST
+      x-ms-service-request-id: 2865e56f-7676-468c-ba26-139007590e39
+      x-ms-service-request-id: 64b96835-e20a-4ab3-b2c1-700b03b481ca
+      WWW-Authenticate: Bearer authorization_uri=https://login.microsoftonline.com/6f504113-6b64-43f2-ade9-242e05780007/oauth2/authorize, resource_id=https://rpadevv9.crm4.dynamics.com/
+      Strict-Transport-Security: max-age=31536000; includeSubDomains
+      REQ_ID: 64b96835-e20a-4ab3-b2c1-700b03b481ca
+      CRM.ServiceId: framework
+      AuthActivityId: 77093d56-4993-49f1-b69e-a6159a90bc65
+      NativeWebSession-Version: 2
+      X-Source: 1269915522724313946225601101502719612258421431103578190137981642161681620097244137242
+      X-Source: 180891901517144180209305110517423312821413910489140871071631449823416213124293249424
+      Public: OPTIONS,GET,HEAD,POST
+      Date: Fri, 23 Feb 2024 17:56:09 GMT
+      Content-Length: 0
+    }
+  
+    status: {
+      code: 401
+      text: Unauthorized
+    }
+  
+    body: {
+      type: text
+      content: '''
+  
+      '''
+    }
+  }
+}

@@ -1,0 +1,32 @@
+meta {
+  name: Get Access Token
+  type: http
+  seq: 3
+}
+
+post {
+  url: https://login.microsoftonline.com/{{TENANT_ID}}/oauth2/v2.0/token
+  body: formUrlEncoded
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/x-www-form-urlencoded
+}
+
+body:form-urlencoded {
+  grant_type: client_credentials
+  client_id: {{CLIENT_ID}}
+  client_secret: {{CLIENT_SECRET}}
+  scope: {{CRM_URL_SCOPE}}/.default
+}
+
+script:post-response {
+  const response = res.getBody();
+  bru.setEnvVar("CRM_ACCESS_TOKEN", response.access_token);
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

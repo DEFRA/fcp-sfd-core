@@ -1,0 +1,34 @@
+meta {
+  name: Find Online Submission by Legacy Random ID
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{CRM_URL}}/api/data/v9.2/rpa_onlinesubmissions?$select=activityid,subject&$filter=rpa_onlinesubmissionid%20eq%20%27{{legacyOnlineSubmissionId}}%27&$expand=rpa_onlinesubmission_rpa_activitymetadata($select=rpa_name,rpa_blobfileid,createdon)
+  body: none
+  auth: inherit
+}
+
+params:query {
+  $select: activityid,subject
+  $filter: rpa_onlinesubmissionid%20eq%20%27{{legacyOnlineSubmissionId}}%27
+  $expand: rpa_onlinesubmission_rpa_activitymetadata($select=rpa_name,rpa_blobfileid,createdon)
+}
+
+vars:pre-request {
+  legacyOnlineSubmissionId: ee4a09edeb501d741291
+}
+
+settings {
+  encodeUrl: false
+  timeout: 0
+}
+
+docs {
+  Finds an online submission by its legacy random rpa_onlinesubmissionid
+  (the randomBytes(10).toString('hex') value from src/repos/crm.js) and
+  expands its metadata children. Useful for tracing a specific submission
+  from a service log's rpaOnlinesubmissionid back to its Dataverse records.
+  Swap the filter value for the id you're chasing.
+}

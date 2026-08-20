@@ -50,6 +50,13 @@ Copilot-specific resources in this repo
 - Skills: `.github/skills/` — use `generate-vitest-unit-tests` to produce tests matching the project's conventions and `generate-mermaid-diagram` for architecture diagrams.
 - Prompts & plans: `.github/prompts/` contains reusable planning prompts (e.g., service bootstrap, local dev enhancements).
 
+Bruno collections (`bruno/`)
+- Bruno collections for exercising upstream integrations directly (outside the services themselves) live under `bruno/collections/<Name>/`. See `bruno/readme.md`.
+- Each collection's `environments/example.bru` is a blank, tracked template. Real environment files (populated with client secrets/access tokens) are git-ignored — never commit a populated environment file or a hardcoded token/secret inside a request or `collection.bru`.
+- Requests are organised into folders by theme, each with its own `folder.bru` setting `auth { mode: inherit }` so auth resolves up to the collection root.
+- Hardcoded IDs/values in a request's path, query, or body are set as `vars:pre-request` defaults (original value preserved as the default) rather than baked directly into the request — follow this pattern when adding new requests.
+- When a request mirrors application code (e.g. `CRM/requests/Case and Metadata Creation/Create Case Changeset...` mirrors `fcp-sfd-crm`'s `src/repos/crm.js`/`dataverse-batch.js`), keep its `docs{}` block pointing at the exact source file(s) it mirrors so it can be re-checked when that code changes.
+
 How Copilot should behave here
 - Prefer existing repository skills for repetitive tasks (test generation, diagrams, Sonar fixes) instead of inventing new heuristics.
 - Do not add or assume `lint`/`test`/`sonar` scripts exist in this repo — check each service's package.json; add scripts only when requested and follow the service template in `.github/prompts/plan-initiateNewSfdBackendService.prompt.md`.

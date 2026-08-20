@@ -1,0 +1,218 @@
+meta {
+  name: Create Case Changeset (Mirrors createCaseWithOnlineSubmission)
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{CRM_URL}}/$batch
+  body: json
+  auth: inherit
+}
+
+vars:pre-request {
+  correlationId: 8f14e45f-ceea-467e-95a6-3e3a3d5a0e57
+  fileId: 3b241101-e2bb-4255-8caf-4136c566a962
+  contactId: 5756a12d-1eb0-ec11-9841-000d3a664917
+  accountId: 6b486c17-2b9d-f011-b41c-7ced8d2f4754
+  schemeValue: 4e88916b-aae2-ee11-904c-000d3adc1ec9
+  subjectValue: 4e88916b-aae2-ee11-904c-000d3adc1ec9
+  teamRoutingValue: 87486c17-2b9d-f011-b41c-7ced8d2f4754
+  documentTypesId: 4e88916b-aae2-ee11-904c-000d3adc1ec9
+  title: BATCH CHANGESET TEST - DO NOT PROCESS
+  caseDescription: Mirrors createCaseWithOnlineSubmission, safe to delete
+  caseOriginCode: 3
+  subject: BATCH CHANGESET TEST
+  submissionDescription: Mirrors createCaseWithOnlineSubmission, safe to delete
+  scheduledStart: 2026-08-20T00:00:00Z
+  scheduledEnd: 2026-08-20T00:00:00Z
+  stateCode: 0
+  statusCode: 1
+  fileName: batch-changeset-test.pdf
+  blobFileId: blob-file-id-123
+  mimeType: application/pdf
+}
+
+script:pre-request {
+  const crypto = require('crypto');
+
+  // Mirrors deriveRecordId in src/repos/crm.js exactly: a sha256 digest
+  // reshaped into an RFC 4122 version 4 formatted GUID, so identical inputs
+  // always resolve to the same Dataverse record.
+  const deriveRecordId = (...parts) => {
+    const hash = crypto.createHash('sha256').update(parts.join(':')).digest('hex');
+    const hex = hash.slice(0, 32).split('');
+    hex[12] = '4';
+    hex[16] = ((parseInt(hex[16], 16) & 0x3) | 0x8).toString(16);
+    const guid = hex.join('');
+    return `${guid.slice(0, 8)}-${guid.slice(8, 12)}-${guid.slice(12, 16)}-${guid.slice(16, 20)}-${guid.slice(20, 32)}`;
+  };
+
+  const correlationId = bru.getVar('correlationId');
+  const fileId = bru.getVar('fileId');
+
+  const caseId = deriveRecordId('incident', correlationId);
+  const onlineSubmissionId = deriveRecordId('onlinesubmission', correlationId);
+  const metadataId = deriveRecordId(correlationId, fileId);
+
+  // Not derived: rpa_onlinesubmissionid is an ordinary string attribute
+  // (MaxLength 20), too short to hold a 36-character correlationId — see
+  // buildCaseChangeset in src/repos/crm.js.
+  const rpaOnlinesubmissionid = crypto.randomBytes(10).toString('hex');
+
+  bru.setVar('derivedCaseId', caseId);
+  bru.setVar('derivedOnlineSubmissionId', onlineSubmissionId);
+  bru.setVar('derivedMetadataId', metadataId);
+  bru.setVar('derivedRpaOnlinesubmissionid', rpaOnlinesubmissionid);
+
+  const base = bru.getEnvVar('CRM_URL');
+  const contactId = bru.getVar('contactId');
+  const accountId = bru.getVar('accountId');
+  const schemeValue = bru.getVar('schemeValue');
+  const subjectValue = bru.getVar('subjectValue');
+  const teamRoutingValue = bru.getVar('teamRoutingValue');
+  const documentTypesId = bru.getVar('documentTypesId');
+
+  const casePayload = {
+    title: bru.getVar('title'),
+    description: bru.getVar('caseDescription'),
+    caseorigincode: Number(bru.getVar('caseOriginCode')),
+    prioritycode: 2,
+    'customerid_contact@odata.bind': `/contacts(${contactId})`,
+    'rpa_Contact@odata.bind': `/contacts(${contactId})`,
+    'rpa_Organisation@odata.bind': `/accounts(${accountId})`,
+    'rpa_Scheme@odata.bind': `/rpa_schemes(${schemeValue})`,
+    'subjectid@odata.bind': `/subjects(${subjectValue})`,
+    rpa_isunknowncontact: false,
+    rpa_isunknownorganisation: false
+  };
+  if (teamRoutingValue) {
+    casePayload['ownerid@odata.bind'] = `/teams(${teamRoutingValue})`;
+  }
+
+  const onlineSubmissionPayload = {
+    subject: bru.getVar('subject'),
+    description: bru.getVar('submissionDescription'),
+    scheduledstart: bru.getVar('scheduledStart'),
+    scheduledend: bru.getVar('scheduledEnd'),
+    rpa_onlinesubmissiondate: new Date().toISOString(),
+    rpa_onlinesubmissionid: rpaOnlinesubmissionid,
+    statecode: Number(bru.getVar('stateCode')),
+    statuscode: Number(bru.getVar('statusCode')),
+    'rpa_SubmissionType_rpa_onlinesubmission@odata.bind': `/rpa_documenttypeses(${documentTypesId})`,
+    'regardingobjectid_incident_rpa_onlinesubmission@odata.bind': `/incidents(${caseId})`
+  };
+
+  const mimeType = bru.getVar('mimeType');
+  const metadataPayload = {
+    rpa_name: bru.getVar('fileName'),
+    rpa_blobfileid: bru.getVar('blobFileId'),
+    'rpa_DocumentTypeMetaId@odata.bind': `/rpa_documenttypeses(${documentTypesId})`,
+    'rpa_RelatedOnlineSubmissionId@odata.bind': `/rpa_onlinesubmissions(${onlineSubmissionId})`
+  };
+  if (mimeType) {
+    metadataPayload.rpa_filemimetype = mimeType;
+  }
+
+  const parts = [
+    { method: 'PATCH', url: `${base}/incidents(${caseId})`, body: casePayload },
+    { method: 'PATCH', url: `${base}/rpa_onlinesubmissions(${onlineSubmissionId})`, body: onlineSubmissionPayload },
+    { method: 'PATCH', url: `${base}/rpa_activitymetadatas(${metadataId})`, body: metadataPayload }
+  ];
+
+  // Mirrors buildChangesetRequest in src/repos/dataverse-batch.js exactly,
+  // including its boundary naming and mandatory CRLF framing — Dataverse
+  // silently parses a bare-\n body as zero parts and answers 200 empty.
+  const batchBoundary = `batch_${crypto.randomUUID()}`;
+  const changesetBoundary = `changeset_${crypto.randomUUID()}`;
+
+  const changesetLines = [];
+  parts.forEach((part, index) => {
+    changesetLines.push(
+      `--${changesetBoundary}`,
+      'Content-Type: application/http',
+      'Content-Transfer-Encoding: binary',
+      `Content-ID: ${index + 1}`,
+      '',
+      `${part.method} ${part.url} HTTP/1.1`,
+      'Content-Type: application/json',
+      'If-None-Match: *',
+      '',
+      JSON.stringify(part.body),
+      ''
+    );
+  });
+  changesetLines.push(`--${changesetBoundary}--`, '');
+
+  const lines = [
+    `--${batchBoundary}`,
+    `Content-Type: multipart/mixed;boundary=${changesetBoundary}`,
+    '',
+    ...changesetLines,
+    `--${batchBoundary}--`,
+    ''
+  ];
+
+  req.setHeader('Content-Type', `multipart/mixed;boundary=${batchBoundary}`);
+  req.setBody(lines.join('\r\n'));
+}
+
+script:post-response {
+  // A malformed batch (bad CRLF framing) is answered by Dataverse as an
+  // outer 200 with zero parts — indistinguishable from success unless the
+  // part count and each part's status are checked, exactly as
+  // writeCaseChangesetOrSuppress does in src/repos/crm.js.
+  const text = res.getBody();
+  const boundaryMatch = /boundary=(changesetresponse_[0-9a-f-]+)/i.exec(text);
+  const splitter = boundaryMatch
+    ? new RegExp(`--${boundaryMatch[1]}(?:--)?`)
+    : /--batchresponse_[0-9a-f-]+(?:--)?/i;
+
+  const results = [];
+  for (const block of String(text).split(splitter)) {
+    const statusMatch = /HTTP\/1\.1 (\d{3})([^\r\n]*)/.exec(block);
+    if (!statusMatch) { continue; }
+    const idMatch = /Content-ID:\s*(\d+)/.exec(block);
+    results.push({
+      contentId: idMatch ? idMatch[1] : null,
+      status: Number(statusMatch[1]),
+      statusText: statusMatch[2].trim()
+    });
+  }
+
+  console.log('Parsed batch parts:', JSON.stringify(results));
+  console.log('204 on every part on a first run = created.');
+  console.log('412 with only part 1 present on a repeat = suppressed, matches writeCaseChangesetOrSuppress.');
+  console.log('caseId (derived):', bru.getVar('derivedCaseId'));
+  console.log('onlineSubmissionId (derived):', bru.getVar('derivedOnlineSubmissionId'));
+  console.log('metadataId (derived):', bru.getVar('derivedMetadataId'));
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  Mirrors createCaseWithOnlineSubmission end-to-end as it exists today in
+  src/repos/crm.js and src/repos/dataverse-batch.js: derives caseId,
+  onlineSubmissionId and metadataId from (correlationId[, fileId]) using the
+  same sha256-to-v4-GUID shaping as deriveRecordId, builds the same three
+  PATCH payloads buildCaseChangeset builds (case, online submission,
+  metadata — including the conditional ownerid bind and the random,
+  non-derived rpa_onlinesubmissionid), and frames them into a $batch
+  changeset with the same boundary naming and CRLF framing as
+  buildChangesetRequest.
+
+  Run once: expect an outer 200 with three 204 parts (case created).
+  Run again unchanged: expect an outer 412 with only part 1 present — the
+  same suppressed-duplicate path writeCaseChangesetOrSuppress takes on a
+  redelivered message. Change correlationId or fileId in vars:pre-request to
+  target a fresh set of records instead.
+
+  Distinct from B6 Experiment - Changeset Conditional Upsert, which proved
+  the changeset/If-None-Match mechanism against fixed GUIDs during the
+  original investigation. This request instead mirrors the current
+  production code path, including its exact key-derivation function and
+  full payload shape, so it stays accurate as the code evolves.
+}

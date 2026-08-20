@@ -1,0 +1,37 @@
+meta {
+  name: Find Duplicate Cases by Submission Title
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{CRM_URL}}/incidents?$filter=title eq '{{submissionTitle}}'&$select=incidentid,ticketnumber,title,createdon&$orderby=createdon
+  body: none
+  auth: inherit
+}
+
+params:query {
+  $filter: title eq '{{submissionTitle}}'
+  $select: incidentid,ticketnumber,title,createdon
+  $orderby: createdon
+}
+
+vars:pre-request {
+  submissionTitle: SFD Manual test run SFD - CRN 1105830675 - 19/08/2026
+}
+
+settings {
+  encodeUrl: false
+  timeout: 0
+}
+
+docs {
+  The exact query that found the duplicate-case pair during the 19 Aug 2026
+  investigation (CRM-4623520-N8M5B9 / CRM-4623521-W6K1H4, orphan case
+  fee6e902-... committed ~1s after a client timeout, recorded case
+  187c2627-... created ~1 minute later on the redelivery). Same case type,
+  same customer, distinguishable only by an identical title and consecutive
+  ticket numbers — see docs/ADRs/0001-batch-changeset-for-idempotent-case-creation.md
+  in fcp-sfd-crm. Swap the title filter for whatever submission you're
+  checking for duplicates.
+}

@@ -1,0 +1,86 @@
+meta {
+  name: Create Online Submission Activity (Standalone, with Generic Control Fields)
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{CRM_URL}}/rpa_onlinesubmissions?$select=activityid
+  body: json
+  auth: inherit
+}
+
+params:query {
+  $select: activityid
+}
+
+vars:pre-request {
+  caseId: 4414ccb1-32e8-ee11-904c-000d3aba458f
+  documentTypeId: 4e88916b-aae2-ee11-904c-000d3adc1ec9
+  primaryContactId: 42ee5ef2-0d76-e411-9411-00155deb6487
+  secondaryContactId1: 16834017-0576-e411-9411-00155deb6487
+  secondaryContactId2: 9db5b782-d475-e411-9411-00155deb6487
+  secondaryContactId3: 6bc55476-d875-e411-9411-00155deb6487
+  secondaryContactId4: 27239bef-d975-e411-9411-00155deb6487
+  accountId: 7c4f19c8-9475-e411-9411-00155deb6487
+}
+
+body:json {
+  {
+      "regardingobjectid_incident_rpa_onlinesubmission@odata.bind": "/incidents({{caseId}})",
+      "rpa_SubmissionType_rpa_onlinesubmission@odata.bind": "/rpa_documenttypeses({{documentTypeId}})",
+      "rpa_filesinsubmission": "0",
+      "rpa_onlinesubmission_activity_parties": [
+          {
+              "participationtypemask": 1,
+              "partyid_contact@odata.bind": "/contacts({{primaryContactId}})"
+          },
+          {
+              "participationtypemask": 2,
+              "partyid_contact@odata.bind": "/contacts({{secondaryContactId1}})"
+          },
+          {
+              "participationtypemask": 2,
+              "partyid_contact@odata.bind": "/contacts({{secondaryContactId2}})"
+          },
+              {
+              "participationtypemask": 2,
+              "partyid_contact@odata.bind": "/contacts({{secondaryContactId3}})"
+          },
+                   {
+              "participationtypemask": 2,
+              "partyid_contact@odata.bind": "/contacts({{secondaryContactId4}})"
+          },
+          {
+              "participationtypemask": 11,
+              "partyid_account@odata.bind": "/accounts({{accountId}})"
+          }
+        ],
+        "rpa_onlinesubmissiondate": "2023-01-01T14:12:11.000Z",
+        "rpa_onlinesubmissionid": "1234567",
+      //  "rpa_holdstatus1": true,
+        "rpa_genericcontrol1":"BANKVERIFY,DEACTIVATE,FRAUD,PROBATE,INACTIVE",
+        "rpa_genericerror1":"Invalid CRN(s)",
+        "rpa_genericcontrol2":"1234",
+        "subject": "Online Submission - Bank Account Update"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  Standalone online submission create for a Bank Account Update flow, not
+  document upload. Kept mainly for what it reveals: rpa_genericcontrol1 and
+  rpa_genericcontrol2 already carry real, in-use values here
+  (BANKVERIFY/DEACTIVATE/FRAUD/PROBATE/INACTIVE control flags and an
+  associated error code), alongside rpa_genericerror1. This is direct
+  evidence for why the CRM data owner did not approve either
+  rpa_genericcontrol field for the unrelated test-automation query-id use
+  case (see plans/rpa-uniqueid-test-automation-query-field-*.md in
+  fcp-sfd-crm) — they are already semantically owned by bank-verification
+  logic. Also note also uses rpa_onlinesubmission_activity_parties, which
+  the document-upload flow does not.
+}

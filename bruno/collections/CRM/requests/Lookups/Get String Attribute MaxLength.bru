@@ -1,0 +1,36 @@
+meta {
+  name: Get String Attribute MaxLength
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{CRM_URL}}/EntityDefinitions(LogicalName='rpa_onlinesubmission')/Attributes(LogicalName='{{attributeName}}')/Microsoft.Dynamics.CRM.StringAttributeMetadata?$select=MaxLength
+  body: none
+  auth: inherit
+}
+
+params:query {
+  $select: MaxLength
+}
+
+vars:pre-request {
+  attributeName: rpa_onlinesubmissionid
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  Reads MaxLength on a string attribute via the required
+  StringAttributeMetadata cast (the base AttributeMetadata type does not
+  expose MaxLength directly). Currently targeting rpa_onlinesubmissionid,
+  confirmed 20 characters — too short for a 36-character correlationId, the
+  finding that reopened blocking decision B2. Reused in place (set
+  attributeName in vars:pre-request) to check rpa_uniqueid, which came
+  back with the same MaxLength: 20 — see
+  plans/duplicate-case-creation-on-timeout-*.md and
+  plans/rpa-uniqueid-test-automation-query-field-*.md in fcp-sfd-crm.
+}

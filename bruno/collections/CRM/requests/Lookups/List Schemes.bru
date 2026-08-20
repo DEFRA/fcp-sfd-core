@@ -1,0 +1,26 @@
+meta {
+  name: List Schemes
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{CRM_URL}}/rpa_schemes
+  body: none
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer <your-auth-token>
+  Content-Type: application/json
+}
+
+settings {
+  encodeUrl: false
+  timeout: 0
+}
+
+docs {
+  Unfiltered list of every rpa_schemes row, for finding a schemeValue to use
+  in case-creation payloads without going through the document-type lookup.
+}

@@ -123,6 +123,10 @@ Switch to and pull the latest `main` branch for each microservice.
 npm run update
 ```
 
+## Bruno collections
+
+Bruno collections for exercising upstream integrations directly (outside the services themselves) are stored in `bruno/`. See [`bruno/readme.md`](bruno/readme.md) for import instructions and environment setup. The `CRM` collection covers the Dataverse CRM Web API used by `fcp-sfd-crm`, including its idempotent case-creation `$batch` changeset.
+
 ## GitHub Copilot
 
 Custom Copilot prompts, skills, and agents are stored in this core repository for use on any SFD service. The table below summarises the Copilot resources that are available.

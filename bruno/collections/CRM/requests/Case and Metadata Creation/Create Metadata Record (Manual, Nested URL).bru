@@ -1,0 +1,52 @@
+meta {
+  name: Create Metadata Record (Manual, Nested URL)
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{CRM_URL}}/api/data/v9.2/rpa_onlinesubmissions({{onlineSubmissionId}})/rpa_onlinesubmission_rpa_activitymetadata
+  body: json
+  auth: inherit
+}
+
+vars:pre-request {
+  onlineSubmissionId: 1474ed7e-75fb-f011-8406-0022489c5393
+  documentTypeId: 4e88916b-aae2-ee11-904c-000d3adc1ec9
+}
+
+headers {
+  Content-Type: application/json
+  OData-MaxVersion: 4.0
+  OData-Version: 4.0
+  Accept: application/json
+}
+
+body:json {
+  {
+    "rpa_name": "Example metadata",
+    "rpa_fileabsoluteurl": "https://example.com/file.pdf",
+    "rpa_copiedfileurl": "https://example.com/file-copy.pdf",
+    "rpa_DocumentTypeMetaId@odata.bind": "/rpa_documenttypeses({{documentTypeId}})"
+  }
+}
+
+settings {
+  encodeUrl: false
+  timeout: 0
+}
+
+docs {
+  Manual metadata create via the parent's nested navigation collection
+  (POST .../rpa_onlinesubmissions(id)/rpa_onlinesubmission_rpa_activitymetadata),
+  the pre-FLS1-153 shape. fcp-sfd-crm now addresses the metadata entity set
+  directly with a derived key and If-None-Match: * — see
+  createMetadataForOnlineSubmission in src/repos/crm.js. Kept for reference.
+
+  SECURITY NOTE: this request previously had a long-lived bearer JWT
+  hardcoded in an auth:bearer block instead of using the collection's
+  inherited CRM_ACCESS_TOKEN. Switched to auth: inherit for consistency with
+  every other request in this collection. If that token was ever valid,
+  treat it as compromised and rotate/revoke it — it should not have been
+  sitting in a local file in plaintext.
+}

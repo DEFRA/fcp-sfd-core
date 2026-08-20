@@ -1,0 +1,32 @@
+meta {
+  name: Get Duplicate Rule - Basic Fields
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{CRM_URL}}/duplicaterules({{duplicateRuleId}})?$select=name,statecode,baseentityname,matchingentityname
+  body: none
+  auth: inherit
+}
+
+params:query {
+  $select: name,statecode,baseentityname,matchingentityname
+}
+
+vars:pre-request {
+  duplicateRuleId: 2b79a040-ccd5-ec11-a7b5-000d3adcba42
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  First step of the assumption-10 duplicate-detection investigation (see
+  plans/duplicate-case-creation-on-timeout-*.md in fcp-sfd-crm): confirms
+  "Look for Active Amend Bank Cases by SBI" is published (statecode: 0) and
+  matches incident-to-incident. Next: "Get Duplicate Rule - Match
+  Conditions" for what it actually compares.
+}

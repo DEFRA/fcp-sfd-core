@@ -1,0 +1,37 @@
+meta {
+  name: Get Online Submission with Metadata Expanded
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{CRM_URL}}/rpa_onlinesubmissions(:activityId)?$select=activityid,subject&$expand=rpa_onlinesubmission_rpa_activitymetadata($select=rpa_name,rpa_blobfileid,createdon)
+  body: none
+  auth: inherit
+}
+
+params:query {
+  $select: activityid,subject
+  $expand: rpa_onlinesubmission_rpa_activitymetadata($select=rpa_name,rpa_blobfileid,createdon)
+}
+
+params:path {
+  activityId: {{activityId}}
+}
+
+headers {
+  Authorization: Bearer
+}
+
+settings {
+  encodeUrl: false
+  timeout: 0
+}
+
+docs {
+  Gets an online submission by activityid (wired to the {{activityId}} env
+  var, set by "Get Case's Online Submission Activity ID") with its metadata
+  children expanded — file name, blob id, created timestamp. This is the
+  query used throughout the duplicate-case-creation investigation to check
+  how many files actually attached to a given submission.
+}

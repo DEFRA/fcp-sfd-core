@@ -1,0 +1,41 @@
+meta {
+  name: Get Case's Online Submission Activity ID
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{CRM_URL}}/incidents(:caseId)?$select=incidentid,title&$expand=incident_rpa_onlinesubmissions($select=activityid,rpa_onlinesubmissionid)
+  body: none
+  auth: inherit
+}
+
+params:query {
+  $select: incidentid,title
+  $expand: incident_rpa_onlinesubmissions($select=activityid,rpa_onlinesubmissionid)
+}
+
+params:path {
+  caseId: {{caseId}}
+}
+
+vars:pre-request {
+  caseId: dead91e9-b6f2-401e-87c5-c57f3002f7cc
+}
+
+script:post-response {
+  const response = res.getBody();
+  bru.setEnvVar("activityId", response.incident_rpa_onlinesubmissions[0].activityid);
+}
+
+settings {
+  encodeUrl: false
+  timeout: 0
+}
+
+docs {
+  Chaining helper: given a caseId, extracts its first online submission's
+  activityid into the {{activityId}} env var, for use by "Get Online
+  Submission with Metadata Expanded" and similar requests. Set caseId to the
+  case you're investigating before running.
+}

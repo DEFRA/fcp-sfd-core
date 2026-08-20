@@ -1,0 +1,82 @@
+meta {
+  name: Reproduce App Deep-Insert Payload (With Owner Team Bind)
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{CRM_URL}}/incidents
+  body: json
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer PASTE_TOKEN_HERE
+  Content-Type: application/json
+  Prefer: return=representation
+}
+
+vars:pre-request {
+  contactId: 8ab86bcb-b1cd-ea11-a812-000d3ab277b5
+  accountId: ca24a053-39cc-ea11-a812-000d3ab9bd1c
+  schemeId: 351e9206-3498-ee11-be37-000d3adf3558
+  subjectId: 4e1910c7-b0d7-ee11-904d-0022489fd23c
+  ownerTeamId: 87486c17-2b9d-f011-b41c-7ced8d2f4754
+  documentTypeId: fe2785b9-f06e-f111-ab0c-7c1e5235c19d
+  rpaOnlinesubmissionId: a1b2c3d4e5f60718293a
+  blobFileId: blob-file-id-123
+}
+
+body:json {
+  {
+    "title": "Document Upload",
+    "description": "Document upload case",
+    "caseorigincode": 3,
+    "prioritycode": 2,
+    "customerid_contact@odata.bind": "/contacts({{contactId}})",
+    "rpa_Contact@odata.bind": "/contacts({{contactId}})",
+    "rpa_Organisation@odata.bind": "/accounts({{accountId}})",
+    "rpa_Scheme@odata.bind": "/rpa_schemes({{schemeId}})",
+    "subjectid@odata.bind": "/subjects({{subjectId}})",
+    "ownerid@odata.bind": "/teams({{ownerTeamId}})",
+    "rpa_isunknowncontact": false,
+    "rpa_isunknownorganisation": false,
+    "incident_rpa_onlinesubmissions": [
+      {
+        "subject": "Document Upload",
+        "description": "Online submission activity",
+        "scheduledstart": "2026-08-05T11:00:00Z",
+        "scheduledend": "2026-08-05T12:00:00Z",
+        "rpa_onlinesubmissiondate": "2026-08-05T11:00:00Z",
+        "rpa_onlinesubmissionid": "{{rpaOnlinesubmissionId}}",
+        "statecode": 0,
+        "statuscode": 1,
+        "rpa_SubmissionType_rpa_onlinesubmission@odata.bind": "/rpa_documenttypeses({{documentTypeId}})",
+        "rpa_onlinesubmission_rpa_activitymetadata": [
+          {
+            "rpa_name": "example.pdf",
+            "rpa_blobfileid": "{{blobFileId}}",
+            "rpa_DocumentTypeMetaId@odata.bind": "/rpa_documenttypeses({{documentTypeId}})",
+            "rpa_filemimetype": "application/pdf"
+          }
+        ]
+      }
+    ]
+  }
+}
+
+settings {
+  encodeUrl: false
+  timeout: 0
+}
+
+docs {
+  Same deep-insert reproduction as "Reproduce App Deep-Insert Payload (No
+  Owner Bind)", but adds ownerid@odata.bind on the case and the missing
+  rpa_SubmissionType_rpa_onlinesubmission bind on the online submission.
+  Closer to the full current casePayload shape in buildCaseChangeset
+  (src/repos/crm.js) minus the batch-changeset split itself. Auth header
+  still has a literal PASTE_TOKEN_HERE placeholder — auth: inherit already
+  supplies the real token via CRM_ACCESS_TOKEN, so this header is redundant
+  and safe to delete.
+}

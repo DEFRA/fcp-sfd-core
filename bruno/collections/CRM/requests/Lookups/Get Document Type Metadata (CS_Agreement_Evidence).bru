@@ -1,0 +1,47 @@
+meta {
+  name: Get Document Type Metadata (CS_Agreement_Evidence)
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{CRM_URL}}/rpa_documenttypeses?$filter=rpa_documenttype%20eq%20%27{{documentType}}%27
+  body: none
+  auth: inherit
+}
+
+params:query {
+  $filter: rpa_documenttype%20eq%20%27{{documentType}}%27
+  ~$select: _rpa_scheme_value,_rpa_subject_value,rpa_documenttypesid,rpa_casetype
+}
+
+vars:pre-request {
+  documentType: CS_Agreement_Evidence
+}
+
+headers {
+  content-type: application/json
+}
+
+script:post-response {
+  const response = res.getBody();
+  bru.setEnvVar("SCHEME_VALUE", response.value[0]._rpa_scheme_value);
+  bru.setEnvVar("SUBJECT_VALUE", response.value[0]._rpa_subject_value);
+  bru.setEnvVar("DOCUMENT_TYPE_ID", response.value[0].rpa_documenttypesid);
+  bru.setEnvVar("CASE_TYPE", response.value[0].rpa_casetype);
+  bru.setEnvVar("teamRoutingValue", response.value[0]._rpa_teamrouting_value);
+}
+
+settings {
+  encodeUrl: false
+  timeout: 0
+}
+
+docs {
+  Looks up the CS_Agreement_Evidence document type row and populates
+  SCHEME_VALUE, SUBJECT_VALUE, DOCUMENT_TYPE_ID, CASE_TYPE and
+  teamRoutingValue — the env vars every case-creation request in this
+  collection depends on. Run this (or the equivalent for a different
+  document type) before "Create Case (Deep Insert, Manual Test)" or the B1/B6
+  experiments.
+}

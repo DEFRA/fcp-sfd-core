@@ -1,0 +1,40 @@
+meta {
+  name: Check Logged Duplicate Matches for Rule
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{CRM_URL}}/duplicaterecords?$filter=_duplicateruleid_value eq {{duplicateRuleId}}
+  body: none
+  auth: inherit
+}
+
+params:query {
+  $filter: _duplicateruleid_value eq {{duplicateRuleId}}
+}
+
+vars:pre-request {
+  duplicateRuleId: 2b79a040-ccd5-ec11-a7b5-000d3adcba42
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  Checks Dataverse's own audit trail of matches this rule has ever caught.
+  Came back empty ([]) on 20 Aug 2026 — including for the known duplicate
+  case pair (fee6e902-.../187c2627-...) which structurally satisfies the
+  rule's conditions (same case type, same organisation, minutes apart).
+  Strong evidence duplicate detection has never intercepted anything on
+  incident in this org, but NOT conclusive proof it can't — an empty log is
+  also consistent with real-time duplicate detection on create/update being
+  switched off entirely at the org level. That toggle needs checking
+  separately (Settings > Data Management > Duplicate Detection Settings in
+  the maker portal, or ask the CRM team) — see
+  plans/duplicate-case-creation-on-timeout-*.md, assumption 10.
+  Entity set name (duplicaterecords, not duplicaterecord) was found via
+  "Resolve EntitySetName by LogicalName" after guessing wrong twice first.
+}
