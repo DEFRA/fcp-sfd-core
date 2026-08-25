@@ -1,0 +1,28 @@
+meta {
+  name: List All Attributes on rpa_onlinesubmission
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{CRM_URL}}/EntityDefinitions(LogicalName='rpa_onlinesubmission')?$expand=Attributes($select=LogicalName)
+  body: none
+  auth: inherit
+}
+
+params:query {
+  $expand: Attributes($select=LogicalName)
+}
+
+settings {
+  encodeUrl: false
+  timeout: 0
+}
+
+docs {
+  Lists every attribute's LogicalName on rpa_onlinesubmission — the
+  starting point for finding candidate fields (rpa_uniqueid,
+  rpa_genericcontrol1, rpa_genericcontrol2, etc.) when hunting for
+  somewhere to put a queryable test-automation identifier. See
+  plans/rpa-uniqueid-test-automation-query-field-*.md in fcp-sfd-crm.
+}

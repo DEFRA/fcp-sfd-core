@@ -1,0 +1,28 @@
+meta {
+  name: Get RelationshipDefinitions - Submission to Metadata
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{CRM_URL}}/RelationshipDefinitions?$filter=SchemaName eq 'rpa_onlinesubmission_rpa_activitymetadata'
+  body: none
+  auth: inherit
+}
+
+params:query {
+  $filter: SchemaName eq 'rpa_onlinesubmission_rpa_activitymetadata'
+}
+
+settings {
+  encodeUrl: false
+  timeout: 0
+}
+
+docs {
+  Reads the relationship metadata for rpa_onlinesubmission_rpa_activitymetadata
+  to get its real ReferencingAttribute (rpa_relatedonlinesubmissionid) and
+  ReferencingEntityNavigationPropertyName, rather than guessing them from an
+  expand response. This is the query that settled the FLS1-148c
+  investigation — read directly from the platform, not inferred.
+}

@@ -1,0 +1,42 @@
+meta {
+  name: Get Incident by ID
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{CRM_URL}}/incidents(:caseId)
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~$expand: incident_rpa_onlinesubmissions($select=rpa_onlinesubmissionid)
+  ~$select: incidentid,title
+}
+
+params:path {
+  caseId: {{caseId}}
+}
+
+vars:pre-request {
+  caseId: dead91e9-b6f2-401e-87c5-c57f3002f7cc
+}
+
+headers {
+  Authorization: Bearer ACCESS_TOKEN
+  Accept: application/json
+  OData-MaxVersion: 4.0
+  OData-Version: 4.0
+}
+
+settings {
+  encodeUrl: false
+  timeout: 0
+}
+
+docs {
+  Plain GET of a case by incidentid. $expand/$select are present but
+  disabled (~) — enable as needed. Set caseId to the case you want to
+  inspect.
+}

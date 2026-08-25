@@ -1,0 +1,40 @@
+meta {
+  name: Get Incident with Formatted Value Annotations
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{CRM_URL}}/incidents(:guid)
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~%24select: title,_subjectid_value,_rpa_scheme_value
+}
+
+params:path {
+  guid: {{guid}}
+}
+
+vars:pre-request {
+  guid: 3aff419d-e290-f111-8077-7ced8d2f5999
+}
+
+headers {
+  Prefer: odata.include-annotations="*"
+}
+
+settings {
+  encodeUrl: false
+  timeout: 0
+}
+
+docs {
+  Gets a case with Prefer: odata.include-annotations="*" set, so lookup
+  fields come back with their human-readable formatted values
+  (@OData.Community.Display.V1.FormattedValue) alongside the raw GUIDs —
+  useful for reading _subjectid_value / _rpa_scheme_value without a second
+  lookup. $select is present but disabled (~).
+}

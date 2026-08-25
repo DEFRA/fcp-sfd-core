@@ -1,0 +1,36 @@
+meta {
+  name: Get Duplicate Rule - Match Conditions
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{CRM_URL}}/duplicaterules({{duplicateRuleId}})?$expand=DuplicateRule_DuplicateRuleConditions
+  body: none
+  auth: inherit
+}
+
+params:query {
+  $expand: DuplicateRule_DuplicateRuleConditions
+}
+
+vars:pre-request {
+  duplicateRuleId: 2b79a040-ccd5-ec11-a7b5-000d3adcba42
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  Reveals what "Look for Active Amend Bank Cases by SBI" actually matches
+  on: casetypecode (new incident's case type = an existing incident's case
+  type) AND rpa_organisation (same organisation), excludeinactiverecords:
+  true. Despite the name, this is not scoped to a specific case type value —
+  it fires for ANY two active incidents sharing the same case type and
+  organisation, which structurally includes two document-upload cases from
+  the same SBI submitted close together. The relationship name
+  (DuplicateRule_DuplicateRuleConditions) was found via "Discover Duplicate
+  Rule Relationship Names" after guessing the wrong name first.
+}

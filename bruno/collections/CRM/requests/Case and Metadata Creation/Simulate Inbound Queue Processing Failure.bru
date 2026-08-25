@@ -1,0 +1,37 @@
+meta {
+  name: Simulate Inbound Queue Processing Failure
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{CRM_URL}}/rpa_integrationinboundqueues
+  body: json
+  auth: inherit
+}
+
+vars:pre-request {
+  rpaName: 123456792_1708519095
+  processingEntity: 927350007
+}
+
+body:json {
+  {
+      "rpa_name": "{{rpaName}}",
+      "rpa_processingentity": "{{processingEntity}}",
+      "rpa_xmlmessage": "Failed"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  Writes a synthetic "Failed" entry directly into the RPA integration
+  inbound queue table, to exercise error-handling/retry behaviour on that
+  side of the platform without going through a real failing integration.
+  rpa_name looks like {sbi}_{unix-timestamp} — the same shape as this
+  collection's UOSR_EXAMPLE convention.
+}

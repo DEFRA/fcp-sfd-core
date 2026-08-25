@@ -1,0 +1,37 @@
+meta {
+  name: Get Contact by CRN
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{CRM_URL}}/contacts?$select=contactid,fullname,rpa_capcustomerid
+  body: none
+  auth: inherit
+}
+
+params:query {
+  $select: contactid,fullname,rpa_capcustomerid
+  ~$filter: rpa_capcustomerid eq '{{crn}}'
+}
+
+vars:pre-request {
+  crn: 1234567890
+}
+
+script:post-response {
+  const response = res.getBody();
+  bru.setEnvVar("CONTACT_ID", response.value[0].contactid);
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  Looks up the contact record by CRN (rpa_capcustomerid) and stores its
+  contactid as the CONTACT_ID env var, for use in requests that create or
+  reference a case's customerid_contact / rpa_Contact bindings. Enable the
+  $filter param and set the CRN value before running.
+}

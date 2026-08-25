@@ -1,0 +1,68 @@
+meta {
+  name: Create Case (Deep Insert, Manual Test)
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{CRM_URL}}/incidents?$select=incidentid,ticketnumber
+  body: json
+  auth: inherit
+}
+
+params:query {
+  $select: incidentid,ticketnumber
+}
+
+body:json {
+  {
+    "title": "TEST Case 1",
+    "description": "Description of test case",
+    "caseorigincode": 3,
+    "prioritycode": 2,
+    "customerid_contact@odata.bind": "/contacts({{CONTACT_ID}})",
+    "rpa_Contact@odata.bind": "/contacts({{CONTACT_ID}})",
+    "rpa_Organisation@odata.bind": "/accounts({{ORG_IR}})",
+    "rpa_Scheme@odata.bind": "/rpa_schemes({{SCHEME_VALUE}})",
+    "subjectid@odata.bind": "/subjects({{SUBJECT_VALUE}})",
+    "ownerid@odata.bind": "/teams({{teamRoutingValue}})",
+    "rpa_isunknowncontact": false,
+    "rpa_isunknownorganisation": false,
+    "incident_rpa_onlinesubmissions": [
+      {
+        "subject": "Activity subject",
+        "description": "Activity description",
+        "scheduledstart": "2026-01-21T10:00:00Z",
+        "scheduledend": "2026-01-21T11:00:00Z",
+        "rpa_onlinesubmissionid": "OLS-2026-0001",
+        "rpa_onlinesubmissiondate": "2026-01-21T10:00:00Z",
+        "statecode": 0,
+        "statuscode": 1,
+        "rpa_SubmissionType_rpa_onlinesubmission@odata.bind": "/rpa_documenttypeses({{DOCUMENT_TYPE_ID}})",
+        "rpa_onlinesubmission_rpa_activitymetadata": [
+          {
+            "rpa_name": "File metadata name",
+            "rpa_fileabsoluteurl": "https://example.com/file.pdf",
+            "rpa_copiedfileurl": "https://example.com/copied-file.pdf",
+            "rpa_DocumentTypeMetaId@odata.bind": "/rpa_documenttypeses({{DOCUMENT_TYPE_ID}})"
+          }
+        ]
+      }
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  Manual reproduction of the ORIGINAL deep-insert case creation payload:
+  one POST to /incidents nesting the online submission and its metadata as
+  child collections. This is the shape fcp-sfd-crm used before the
+  idempotency fix (see docs/ADRs/0001-batch-changeset-for-idempotent-case-creation.md
+  in fcp-sfd-crm) — kept here for reference/comparison, not for new
+  submissions. Depends on ORG_IR, CONTACT_ID, SCHEME_VALUE, SUBJECT_VALUE,
+  teamRoutingValue, DOCUMENT_TYPE_ID being set by the lookup requests first.
+}

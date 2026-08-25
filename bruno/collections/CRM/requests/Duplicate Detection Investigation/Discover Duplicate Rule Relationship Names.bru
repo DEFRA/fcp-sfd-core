@@ -1,0 +1,29 @@
+meta {
+  name: Discover Duplicate Rule Relationship Names
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{CRM_URL}}/EntityDefinitions(LogicalName='duplicaterule')/OneToManyRelationships?$select=SchemaName,ReferencingEntity,ReferencingAttribute
+  body: none
+  auth: inherit
+}
+
+params:query {
+  $select: SchemaName,ReferencingEntity,ReferencingAttribute
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  Lists every relationship from duplicaterule to its child entities by real
+  name, rather than guessing one (the first guess,
+  duplicaterule_association, doesn't exist). This is what surfaced
+  DuplicateRule_DuplicateRuleConditions, used by "Get Duplicate Rule - Match
+  Conditions". General-purpose pattern for finding any entity's actual
+  navigation property names when $expand fails.
+}

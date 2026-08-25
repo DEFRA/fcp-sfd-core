@@ -1,0 +1,58 @@
+meta {
+  name: B1 Experiment - Conditional Upsert on Incident
+  type: http
+  seq: 1
+}
+
+patch {
+  url: {{CRM_URL}}/incidents(:caseId)?$select=incidentid,ticketnumber
+  body: json
+  auth: inherit
+}
+
+params:query {
+  $select: incidentid,ticketnumber
+}
+
+params:path {
+  caseId: {{caseId}}
+}
+
+headers {
+  If-None-Match: *
+}
+
+vars:pre-request {
+  caseId: 7da6dba2-3eb2-409f-91b3-4601bd5b3ee4
+}
+
+body:json {
+  '{
+      "title": "IDEMPOTENCY TEST - DO NOT PROCESS",
+      "description": "B1 experiment, safe to delete",
+      "caseorigincode": 3,
+      "prioritycode": 2,
+      "customerid_contact@odata.bind": "/contacts({{CONTACT_ID}})",
+      "rpa_Contact@odata.bind": "/contacts({{CONTACT_ID}})",
+      "rpa_Organisation@odata.bind": "/accounts({{ORG_IR}})",
+      "rpa_Scheme@odata.bind": "/rpa_schemes({{SCHEME_VALUE}})",
+      "subjectid@odata.bind": "/subjects({{SUBJECT_VALUE}})",
+      "ownerid@odata.bind": "/teams({{teamRoutingValue}})",
+        "rpa_isunknowncontact": false,
+      "rpa_isunknownorganisation": false
+    }'
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  B1 experiment from the duplicate-case-creation investigation (19 Aug 2026):
+  proves Dataverse accepts a client-supplied incidentid on a flat PATCH, and
+  that If-None-Match: * returns 412 on a repeat rather than 201. This is the
+  finding that made the derived-key idempotency fix viable. Run once to
+  create, run again unchanged to confirm the 412. Safe to delete the
+  resulting case afterwards — title is marked DO NOT PROCESS.
+}

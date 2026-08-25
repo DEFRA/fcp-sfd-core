@@ -1,0 +1,71 @@
+meta {
+  name: B6 Experiment - Changeset Conditional Upsert
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{CRM_URL}}/$batch
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: multipart/mixed;boundary=batch_b
+}
+
+vars:pre-request {
+  caseId: 7da6dba2-3eb2-409f-91b3-4601bd5b3ee4
+  sub: 71c9fc10-00a0-49f0-9391-012d0bbc7bc5
+  meta: c0f7718b-e078-4a5f-a8d2-5036f82b9f44
+  contact: 5756a12d-1eb0-ec11-9841-000d3a664917
+}
+
+script:pre-request {
+  const b = "batch_b1", c = "changeset_b1";
+  const caseId = bru.getVar("caseId");
+  const sub = bru.getVar("sub");
+  const meta = bru.getVar("meta");
+  const contact = bru.getVar("contact");
+  const base = bru.getEnvVar("CRM_URL");
+  
+  const parts = [
+    [`${base}/incidents(${caseId})`, `{"title":"IDEMPOTENCY TEST - DO NOT PROCESS","caseorigincode":3,"prioritycode":2,"customerid_contact@odata.bind":"/contacts(${contact})"}`],
+    [`${base}/rpa_onlinesubmissions(${sub})`, `{"subject":"IDEMPOTENCY TEST","statecode":0,"statuscode":1,"regardingobjectid_incident_rpa_onlinesubmission@odata.bind":"/incidents(${caseId})"}`],
+    [`${base}/rpa_activitymetadatas(${meta})`, `{"rpa_name":"b1-test.pdf","rpa_RelatedOnlineSubmissionId@odata.bind":"/rpa_onlinesubmissions(${sub})"}`]
+  ];
+  
+  let out = [`--${b}`, `Content-Type: multipart/mixed;boundary=${c}`, ""];
+  parts.forEach(([url, body], i) => {
+    out.push(`--${c}`, "Content-Type: application/http", "Content-Transfer-Encoding: binary",
+              `Content-ID: ${i+1}`, "", `PATCH ${url} HTTP/1.1`, "Content-Type: application/json",
+              "If-None-Match: *", "", body, "");
+  });
+  out.push(`--${c}--`, "", `--${b}--`, "");
+  
+  req.setBody(out.join("\r\n"));
+  
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  B6 experiment from the duplicate-case-creation investigation: builds a
+  three-part $batch changeset (incident, online submission, metadata, each
+  a conditional PATCH with If-None-Match: *) and proves two things run 1)
+  outer 200 with three 204 parts on first run, part 1 GUID echoed via
+  OData-EntityId; run 2) unchanged with the same GUIDs returns outer 412
+  with only part 1 present and 0x80040237 — a changeset aborts on the first
+  failing part. This is what fcp-sfd-crm's writeCaseChangesetOrSuppress in
+  src/repos/crm.js is built on. CRLF line endings are mandatory — the
+  pre-request script joins with \r\n deliberately, do not "clean up" to \n.
+
+  caseId/sub/meta/contact are set in vars:pre-request with their original
+  experiment values as defaults, read via bru.getVar() in the script since
+  {{...}} interpolation doesn't apply inside script blocks. base now reads
+  CRM_URL from the environment via bru.getEnvVar() instead of a hardcoded
+  org URL.
+}

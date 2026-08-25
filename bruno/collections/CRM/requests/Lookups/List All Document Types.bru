@@ -1,0 +1,27 @@
+meta {
+  name: List All Document Types
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{CRM_URL}}/rpa_documenttypeses
+  body: none
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer <your-auth-token>
+  Content-Type: application/json
+}
+
+settings {
+  encodeUrl: false
+  timeout: 0
+}
+
+docs {
+  Unfiltered list of every rpa_documenttypeses row. Use "Get Document Type
+  Metadata (CS_Agreement_Evidence)" instead when you need one specific
+  type's scheme/subject/document-type-id populated into env vars.
+}
