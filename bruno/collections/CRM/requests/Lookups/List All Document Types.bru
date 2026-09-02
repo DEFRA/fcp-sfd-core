@@ -5,9 +5,13 @@ meta {
 }
 
 get {
-  url: {{CRM_URL}}/rpa_documenttypeses
+  url: {{CRM_URL}}/rpa_documenttypeses?$select=rpa_name,rpa_documentcategory
   body: none
   auth: inherit
+}
+
+params:query {
+  $select: rpa_name,rpa_documentcategory
 }
 
 headers {

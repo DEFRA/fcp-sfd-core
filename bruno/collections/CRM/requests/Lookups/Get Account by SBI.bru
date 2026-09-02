@@ -5,14 +5,14 @@ meta {
 }
 
 get {
-  url: {{CRM_URL}}/accounts?$select=accountid,rpa_sbinumber&$filter=rpa_sbinumber eq '{{sbi}}'
+  url: {{CRM_URL}}/accounts?$select=accountid,rpa_sbinumber
   body: none
   auth: inherit
 }
 
 params:query {
   $select: accountid,rpa_sbinumber
-  $filter: rpa_sbinumber eq '{{sbi}}'
+  ~$filter: rpa_sbinumber eq '{{sbi}}'
 }
 
 vars:pre-request {

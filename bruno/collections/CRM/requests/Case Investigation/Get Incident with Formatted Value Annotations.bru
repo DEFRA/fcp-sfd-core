@@ -11,19 +11,19 @@ get {
 }
 
 params:query {
-  ~%24select: title,_subjectid_value,_rpa_scheme_value
+  ~$select: title,_subjectid_value,_rpa_scheme_value
 }
 
 params:path {
   guid: {{guid}}
 }
 
-vars:pre-request {
-  guid: 3aff419d-e290-f111-8077-7ced8d2f5999
-}
-
 headers {
   Prefer: odata.include-annotations="*"
+}
+
+vars:pre-request {
+  guid: 3aff419d-e290-f111-8077-7ced8d2f5999
 }
 
 settings {

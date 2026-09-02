@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{CRM_URL}}/EntityDefinitions(LogicalName='rpa_onlinesubmission')/Attributes(LogicalName='{{attributeName}}')/Microsoft.Dynamics.CRM.StringAttributeMetadata?$select=MaxLength
+  url: {{CRM_URL}}/EntityDefinitions(LogicalName='{{entityLogicalName}}')/Attributes(LogicalName='{{attributeName}}')/Microsoft.Dynamics.CRM.StringAttributeMetadata?$select=MaxLength
   body: none
   auth: inherit
 }
@@ -15,6 +15,7 @@ params:query {
 }
 
 vars:pre-request {
+  entityLogicalName: rpa_onlinesubmission
   attributeName: rpa_onlinesubmissionid
 }
 
@@ -33,4 +34,15 @@ docs {
   back with the same MaxLength: 20 — see
   plans/duplicate-case-creation-on-timeout-*.md and
   plans/rpa-uniqueid-test-automation-query-field-*.md in fcp-sfd-crm.
+
+  The entity is a variable too, so this works against any entity. To get the
+  length of rpa_name on the integration inbound queue, which is
+  ApplicationRequired and so must be populated for the write to succeed, set
+
+    entityLogicalName: rpa_integrationinboundqueue
+    attributeName:     rpa_name
+
+  and send. Confirmed as MaxLength 100, comfortably more than the 20 that
+  rpa_onlinesubmissionid turned out to hold, and enough for a 36-character
+  correlation identifier alongside a short prefix.
 }
