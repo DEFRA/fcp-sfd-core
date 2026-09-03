@@ -5,13 +5,14 @@ meta {
 }
 
 get {
-  url: {{CRM_URL}}/rpa_documenttypeses?$select=rpa_name,rpa_documentcategory
+  url: {{CRM_URL}}/rpa_documenttypeses?$filter=rpa_documenttype eq CS_Capital_Claim_Evidence
   body: none
   auth: inherit
 }
 
 params:query {
-  $select: rpa_name,rpa_documentcategory
+  $filter: rpa_documenttype eq CS_Capital_Claim_Evidence
+  ~$select: rpa_name,rpa_documentcategory
 }
 
 headers {

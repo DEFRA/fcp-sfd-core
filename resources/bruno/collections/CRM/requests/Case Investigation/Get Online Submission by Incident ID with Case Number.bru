@@ -1,0 +1,41 @@
+meta {
+  name: Get Online Submission by Incident ID with Case Number
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{CRM_URL}}/incidents(:incidentId)?$select=ticketnumber&$expand=rpa_incident_rpa_onlinesubmission($select=activityid,subject;$expand=rpa_onlinesubmission_rpa_activitymetadata($select=rpa_name,rpa_blobfileid,createdon))
+  body: none
+  auth: inherit
+}
+
+params:query {
+  $select: ticketnumber
+  $expand: rpa_incident_rpa_onlinesubmission($select=activityid,subject;$expand=rpa_onlinesubmission_rpa_activitymetadata($select=rpa_name,rpa_blobfileid,createdon))
+}
+
+params:path {
+  incidentId: {{incidentId}}
+}
+
+headers {
+  Authorization: ******
+}
+
+vars:pre-request {
+  incidentId: 056ef260-f69a-f111-b8dc-7c1e5237401b
+}
+
+settings {
+  encodeUrl: false
+  timeout: 0
+}
+
+docs {
+  Gets an incident by ID and expands its related online submission(s) with
+  metadata children — file name, blob id, created timestamp. The response
+  includes the incident's ticketnumber (case number). Uses the navigation
+  property rpa_incident_rpa_onlinesubmission to traverse from incident to
+  online submissions, mirroring the expand pattern in src/repos/crm.js.
+}
