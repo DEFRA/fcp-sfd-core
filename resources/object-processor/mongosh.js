@@ -2,9 +2,13 @@
 // Run this in the MongoDB shell
 
 // PREREQUISITES:
-// within mongosh change to the fcp-sfd-object-processor database 
+// within mongosh change to the fcp-sfd-object-processor database
 // use this command `use fcp-sfd-object-processor`
 
+// The document shape below mirrors formatInboundMetadata in
+// fcp-sfd-object-processor/src/repos/metadata.js. Note that sbi, crn and frn are
+// stored as numbers: GET /api/v1/metadata/sbi/{sbi} parses the URL param to an
+// integer before querying, so string values would never be returned.
 
 const numberOfRecords = 110
 
@@ -24,38 +28,53 @@ const correlationIds = generateUuids(numberOfRecords)
 
 // create the payload that can be used across both metadata and outbox
 const createPayload = (i) => {
+  const filename = `test-document-${i + 1}.pdf`
+  const s3Key = `uploads/${filename}`
+  const s3Bucket = 'test-bucket'
+
   return {
+    // The metadata subdocument is the callback's metadata object verbatim.
+    // Any field outside this set is rejected by the callback schema.
     metadata: {
-      sbi: `105${String(i).padStart(6, '0')}`,
-      crn: `105${String(i).padStart(7, '0')}`,
-      frn: `110265${8375 + i}`,
-      submissionId: `173382${6312 + i}`,
-      uosr: `107220${150 + i}_173382${6312 + i}`,
-      submissionDateTime: '10/12/2024 10:25:12',
-      files: [`107220${150 + i}_173382${6312 + i}_SBI107220${150 + i}.pdf`],
-      filesInSubmission: 1,
+      sbi: 105000000 + i,
+      crn: 1050000000 + i,
+      frn: 1102658375 + i,
+      submissionId: `${1733826312 + i}`,
+      uosr: `${105000000 + i}_${1733826312 + i}`,
       type: 'CS_Agreement_Evidence',
       reference: `Test reference ${i + 1}`,
-      service: 'SFD'
+      service: 'fcp-sfd-frontend'
     },
     file: {
       fileId: fileIds[i],
-      filename: `test-document-${i + 1}.pdf`,
+      filename,
       contentType: 'application/pdf',
-      fileStatus: 'complete',
-      url: `https://fcp-placeholder.cdp-int.defra.cloud/api/v1/blobs/${fileIds[i]}`
+      fileStatus: 'complete'
     },
     s3: {
-      key: `uploads/test-document-${i + 1}.pdf`,
-      bucket: 'test-bucket'
+      key: s3Key,
+      bucket: s3Bucket
     },
     messaging: {
       publishedAt: null,
-      correlationId: correlationIds[i]
+      correlationId: correlationIds[i],
+      // Number of files accepted in the callback that produced this record.
+      // All records sharing a correlationId carry the same value.
+      filesInBatch: 1
     },
+    // raw is the untouched callback envelope plus the form upload it came from
     raw: {
-      uploadStatus: 'complete',
-      numberOfRejectedFiles: 0
+      uploadStatus: 'ready',
+      numberOfRejectedFiles: 0,
+      fileId: fileIds[i],
+      filename,
+      contentType: 'application/pdf',
+      detectedContentType: 'application/pdf',
+      fileStatus: 'complete',
+      contentLength: 102400,
+      checksumSha256: 'bng5jOVC6TxEgwTUlX4DikFtDEYEc8vQTsOP0ZAv21c=',
+      s3Key,
+      s3Bucket
     }
   }
 }
@@ -79,8 +98,12 @@ const outboxRecords = insertedIds.map((metadataId, i) => {
   return {
     messageId: metadataId, // Links to the metadata _id
     payload: createPayload(i),
-    status: 'FAILED', // PENDING and FAILED will be processed. SENT will not.
-    attempts: 1,
+    // Valid statuses are PENDING, PROCESSING, SENT and PERMANENT_FAILURE.
+    // The poller claims PENDING entries, and PROCESSING entries whose claim
+    // has expired. SENT and PERMANENT_FAILURE are never reprocessed, and any
+    // entry whose attempts have reached messaging.outboxMaxAttempts is skipped.
+    status: 'PENDING',
+    attempts: 0,
     createdAt: new Date()
   }
 })

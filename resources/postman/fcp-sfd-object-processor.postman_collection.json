@@ -2,12 +2,76 @@
   "info": {
     "_postman_id": "3c00f1e3-937b-466e-a693-5374a78b62ca",
     "name": "fcp-sfd-object-processor",
+    "description": "Requests against the fcp-sfd-object-processor API. Mirrors docs/openapi/v1.json in the fcp-sfd-object-processor repository.\n\nEvery request except Health and Process upload request (the CDP Uploader callback) requires a bearer token. Set the `token` collection variable before running them.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "28285986"
   },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3004",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "sbi",
+      "value": "105000000",
+      "type": "string"
+    },
+    {
+      "key": "fileId",
+      "value": "9fcaabe5-77ec-44db-8356-3a6e8dc51b13",
+      "type": "string"
+    },
+    {
+      "key": "uploadId",
+      "value": "9fcaabe5-77ec-44db-8356-3a6e8dc51b13",
+      "type": "string"
+    },
+    {
+      "key": "correlationId",
+      "value": "550e8400-e29b-41d4-a716-446655440000",
+      "type": "string"
+    }
+  ],
   "item": [
     {
-      "name": "Process upload request",
+      "name": "Health",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "health"
+          ]
+        },
+        "description": "Unauthenticated liveness check."
+      },
+      "response": []
+    },
+    {
+      "name": "Initiate upload",
       "request": {
         "method": "POST",
         "header": [
@@ -19,7 +83,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"uploadStatus\": \"ready\",\n  \"metadata\": {\n    \"sbi\": 123456789,\n    \"crn\": 1234567890,\n    \"frn\": 1102658375,\n    \"submissionId\": \"0987654321\",\n    \"uosr\": \"123456789_0987654321\",\n    \"submissionDateTime\": \"10/12/2024 10:25:12\",\n    \"files\": [\"test-file.pdf\"],\n    \"filesInSubmission\": 1,\n    \"type\": \"CS_Agreement_Evidence\",\n    \"reference\": \"user entered reference\",\n    \"service\": \"fcp-sfd-frontend\"\n  },\n  \"form\": {\n    \"file1\": {\n      \"fileId\": \"aa0bd0ce-e254-40b4-84b6-f5acded17fe8\",\n      \"filename\": \"test-file.pdf\",\n      \"contentType\": \"application/pdf\",\n      \"fileStatus\": \"complete\",\n      \"contentLength\": 102400,\n      \"checksumSha256\": \"dGVzdGNoZWNrc3Vt\",\n      \"detectedContentType\": \"application/pdf\",\n      \"s3Key\": \"uploads/test-file.pdf\",\n      \"s3Bucket\": \"test-bucket\"\n    }\n  },\n  \"numberOfRejectedFiles\": 0\n}",
+          "raw": "{\n  \"redirect\": \"/upload-complete\",\n  \"metadata\": {\n    \"sbi\": 105000000,\n    \"crn\": 1050000000,\n    \"frn\": 1102658375,\n    \"submissionId\": \"1733826312\",\n    \"uosr\": \"105000000_1733826312\",\n    \"type\": \"CS_Agreement_Evidence\",\n    \"reference\": \"user entered reference\",\n    \"service\": \"fcp-sfd-frontend\"\n  }\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -27,18 +91,100 @@
           }
         },
         "url": {
-          "raw": "http://localhost:3004/api/v1/callback",
-          "protocol": "http",
+          "raw": "{{baseUrl}}/api/v1/uploader/initiate",
           "host": [
-            "localhost"
+            "{{baseUrl}}"
           ],
-          "port": "3004",
+          "path": [
+            "api",
+            "v1",
+            "uploader",
+            "initiate"
+          ]
+        },
+        "description": "Starts an upload session. The payload accepts only `redirect` and `metadata`; the S3 bucket, S3 path, callback URL, permitted MIME types and maximum file size are server-side config and any of them sent by the client is rejected. Returns uploadId, uploadUrl and statusUrl."
+      },
+      "response": []
+    },
+    {
+      "name": "Uploader status",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/uploader/status/{{uploadId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "uploader",
+            "status",
+            "{{uploadId}}"
+          ]
+        },
+        "description": "Proxies the CDP Uploader scan status for an upload session. The raw CDP state is mapped to pending, success or failure."
+      },
+      "response": []
+    },
+    {
+      "name": "Process upload request",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"uploadStatus\": \"ready\",\n  \"metadata\": {\n    \"sbi\": 105000000,\n    \"crn\": 1050000000,\n    \"frn\": 1102658375,\n    \"submissionId\": \"1733826312\",\n    \"uosr\": \"105000000_1733826312\",\n    \"type\": \"CS_Agreement_Evidence\",\n    \"reference\": \"user entered reference\",\n    \"service\": \"fcp-sfd-frontend\"\n  },\n  \"form\": {\n    \"file1\": {\n      \"fileId\": \"aa0bd0ce-e254-40b4-84b6-f5acded17fe8\",\n      \"filename\": \"test-file.pdf\",\n      \"contentType\": \"application/pdf\",\n      \"detectedContentType\": \"application/pdf\",\n      \"fileStatus\": \"complete\",\n      \"contentLength\": 102400,\n      \"checksumSha256\": \"bng5jOVC6TxEgwTUlX4DikFtDEYEc8vQTsOP0ZAv21c=\",\n      \"s3Key\": \"scanned/aa0bd0ce-e254-40b4-84b6-f5acded17fe8\",\n      \"s3Bucket\": \"test-bucket\"\n    }\n  },\n  \"numberOfRejectedFiles\": 0\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/callback",
+          "host": [
+            "{{baseUrl}}"
+          ],
           "path": [
             "api",
             "v1",
             "callback"
           ]
-        }
+        },
+        "description": "The CDP Uploader callback. Authentication is disabled because the caller is an external service.\n\nThe metadata object accepts only sbi, crn, frn, submissionId, uosr, type, reference and service. Any other field fails validation, and a validation failure is persisted and answered with 201 rather than rejected, so check GET /api/v1/status/{correlationId} if no metadata appears.\n\nA file with fileStatus `complete` must carry s3Key, s3Bucket, checksumSha256 and a contentLength above zero, and must not carry hasError, errorMessage, errorCode or errorParams."
+      },
+      "response": []
+    },
+    {
+      "name": "Retrieve metadata",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/metadata/sbi/{{sbi}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "metadata",
+            "sbi",
+            "{{sbi}}"
+          ]
+        },
+        "description": "Returns the stored metadata and file details for every document held against an SBI."
       },
       "response": []
     },
@@ -50,52 +196,19 @@
       "request": {
         "method": "GET",
         "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
         "url": {
-          "raw": "http://localhost:3004/api/v1/blob/{fileId}",
-          "protocol": "http",
+          "raw": "{{baseUrl}}/api/v1/blob/{{fileId}}",
           "host": [
-            "localhost"
+            "{{baseUrl}}"
           ],
-          "port": "3004",
           "path": [
             "api",
             "v1",
             "blob",
-            "{fileId}"
+            "{{fileId}}"
           ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Retrieve metadata",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:3004/api/v1/metadata/sbi/{sbi}",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "3004",
-          "path": [
-            "api",
-            "v1",
-            "metadata",
-            "sbi",
-            "{sbi}"
-          ]
-        }
+        },
+        "description": "Returns a presigned S3 URL for the file."
       },
       "response": []
     },
@@ -105,38 +218,18 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:3004/api/v1/status/{correlationId}",
-          "protocol": "http",
+          "raw": "{{baseUrl}}/api/v1/status/{{correlationId}}",
           "host": [
-            "localhost"
+            "{{baseUrl}}"
           ],
-          "port": "3004",
           "path": [
             "api",
             "v1",
             "status",
-            "{correlationId}"
+            "{{correlationId}}"
           ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Health",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:3004/health",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "3004",
-          "path": [
-            "health"
-          ]
-        }
+        },
+        "description": "Returns the persisted callback validation outcome, and any errors, for a correlationId."
       },
       "response": []
     }

@@ -1,0 +1,114 @@
+meta {
+  name: Get Integration Inbound Queue Option Sets
+  type: http
+  seq: 13
+}
+
+get {
+  url: {{CRM_URL}}/EntityDefinitions(LogicalName='rpa_integrationinboundqueue')/Attributes(LogicalName='{{picklistAttribute}}')/Microsoft.Dynamics.CRM.{{metadataCast}}?$select=LogicalName&$expand=OptionSet($select=Options)
+  body: none
+  auth: inherit
+}
+
+params:query {
+  $select: LogicalName
+  $expand: OptionSet($select=Options)
+}
+
+vars:pre-request {
+  picklistAttribute: rpa_processingentity
+  metadataCast: PicklistAttributeMetadata
+}
+
+settings {
+  encodeUrl: false
+  timeout: 0
+}
+
+docs {
+  Returns the permitted values for the choice fields on
+  rpa_integrationinboundqueue. Companion to "Get Integration Inbound Queue
+  Entity Definition", which establishes that these fields exist but not what
+  may be put in them.
+  
+  This is a prerequisite for writing any record. A Picklist rejects an
+  integer that is not one of its defined options, so the write cannot be
+  built without these values, and they cannot be guessed from the field
+  names.
+  
+  Run it once per attribute, changing picklistAttribute in vars:pre-request.
+  Read Options[].Value for the integer to send and
+  Options[].Label.UserLocalizedLabel.Label for what it means.
+  
+  h4. rpa_processingresult — confirmed on rpadevv9
+  
+    927350000  Not Started
+    927350001  Failed
+    927350002  Success
+  
+  *927350001 is the value the doc-upload integration writes.* The set
+  describes the outcome of an attempt, not what went wrong, so it carries no
+  distinction between the four failure conditions. That distinction goes in
+  rpa_errordetails, which is agreed with DDTS CRM as the field carrying the
+  error details, and which is also the only practical place to record which
+  submission failed since the entity has no field for the correlation
+  identifier.
+  
+  h4. rpa_processingstage — confirmed on rpadevv9
+  
+    927350000  Begin Processing
+    927350001  End Processing
+    927350002  Not Started
+  
+  This is a lifecycle position, not a reason. It does not distinguish the
+  four failure conditions. The reason and the identity of the failed
+  submission both go in rpa_errordetails. End Processing is the plausible value for a terminal
+  failure, since processing has stopped, but confirm that reading with DDTS
+  CRM rather than inferring it from the label.
+  
+  h4. rpa_processingentity — confirmed on rpadevv9
+  
+    927350000  Organization
+    927350001  Contact
+    927350002  Address
+    927350003  Contact Role
+    927350004  Customer Query
+    927350005  eRLE1
+    927350006  FFC
+    927350007  Bank Account
+  
+  *No option describes a document upload or the Single Front Door.* The set
+  names the kind of record an inbound integration concerns, and nothing in
+  it fits this one. Either DDTS CRM add an option or we agree to reuse an
+  existing one. Customer Query and FFC are the nearest candidates and
+  neither is obviously right. This is a question for David Aitchison rather
+  than a judgement for the implementer: the wrong value files the record
+  under the wrong integration, where it may never be found. The field is
+  optional on create, so leaving it unset until the answer arrives is
+  better than guessing.
+  
+  h4. statuscode — confirmed on rpadevv9
+  
+    Value 1  Active    (State 0)
+    Value 2  Inactive  (State 1)
+  
+  This is the default two-option set. There are no triage-specific status
+  reasons, so statuscode carries no routing meaning and cannot put a record
+  into a status that hides it from triage.
+  
+  Write 1, or omit the field and let the platform default apply. Do not
+  write 2: it pairs with State 1, statecode is not valid for create on this
+  entity so the record is created in State 0, and the two would be
+  inconsistent.
+  
+  It follows that triage views must be filtering on something other than
+  status, most likely rpa_processingresult being Failed. Worth confirming
+  with DDTS CRM, since it determines whether a record the integration
+  writes actually reaches anyone.
+  
+  h4. Per environment
+  
+  Option set values are solution-deployed and can differ between
+  environments. Confirm them wherever the write is enabled rather than
+  assuming the rpadevv9 values hold.
+}

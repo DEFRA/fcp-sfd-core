@@ -1,0 +1,324 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Document upload" id="sfd-document-upload">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2300" pageHeight="1550" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <mxCell id="title" value="SFD document upload" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=20;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="400" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="subtitle" value="Upload, scan, persist, publish and case creation. Sources: fcp-sfd-object-processor, fcp-sfd-crm, cdp-tenant-config." style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="40" y="52" width="760" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="legendStar" value="SFD responsibility" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=mxgraph.basic.star;aspect=fixed;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="890" y="25" width="32" height="30" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="client" value="Client service&lt;br&gt;e.g. Rural Payments Portal&lt;br&gt;&lt;i&gt;farmer's browser&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="40" y="180" width="180" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="gateway" value="CDP API Gateway&lt;br&gt;fcp-sfd-object-processor&lt;br&gt;&lt;i&gt;Cognito JWT (external)&lt;br&gt;Entra JWT (internal)&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="420" y="175" width="170" height="90" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="op" value="fcp-sfd-object-processor" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="790" y="120" width="460" height="420" as="geometry"/>
+        </mxCell>
+        <mxCell id="opStar" value="" style="html=1;shape=mxgraph.basic.star;aspect=fixed;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="1210" y="126" width="26" height="25" as="geometry"/>
+        </mxCell>
+        <mxCell id="opApi" value="&lt;b&gt;REST API (Hapi)&lt;/b&gt;&lt;br&gt;POST /api/v1/uploader/initiate&lt;br&gt;GET&#160; /api/v1/uploader/status/{uploadId}&lt;br&gt;POST /api/v1/callback &lt;i&gt;(auth: false)&lt;/i&gt;&lt;br&gt;GET&#160; /api/v1/status/{correlationId}" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=8;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="810" y="165" width="320" height="115" as="geometry"/>
+        </mxCell>
+        <mxCell id="opDb" value="MongoDB&lt;br&gt;&lt;i&gt;metadata · outbox&lt;br&gt;sessions · status&lt;/i&gt;" style="shape=cylinder3;boundedLbl=1;backgroundOutline=1;size=10;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="810" y="410" width="160" height="95" as="geometry"/>
+        </mxCell>
+        <mxCell id="opOutbox" value="Outbox worker&lt;br&gt;&lt;i&gt;polls PENDING&lt;br&gt;batches of 10&lt;/i&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="1090" y="415" width="140" height="85" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uploader" value="CDP Uploader (platform)" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="1450" y="120" width="365" height="310" as="geometry"/>
+        </mxCell>
+        <mxCell id="uploaderFe" value="Uploader frontend&lt;br&gt;/upload-and-scan/{uploadId}" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="1470" y="170" width="140" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="uploaderBe" value="Uploader backend&lt;br&gt;&lt;i&gt;virus scan&lt;/i&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="1680" y="170" width="115" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="s3" value="S3 bucket&lt;br&gt;&lt;i&gt;{env}-fcp-sfd-object-processor-bucket&lt;/i&gt;" style="shape=cylinder3;boundedLbl=1;backgroundOutline=1;size=10;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="1470" y="320" width="325" height="85" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="snsOp" value="SNS topic&lt;br&gt;&lt;b&gt;fcp_sfd_object_processor_events&lt;/b&gt;&lt;br&gt;&lt;i&gt;CloudEvent uk.gov.fcp.sfd.document.uploaded&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="800" y="630" width="330" height="75" as="geometry"/>
+        </mxCell>
+        <mxCell id="sqsCrm" value="SQS queue&lt;br&gt;&lt;b&gt;fcp_sfd_crm_requests&lt;/b&gt;&lt;br&gt;&lt;i&gt;visibility 60s · 3 receives then DLQ&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="800" y="800" width="330" height="75" as="geometry"/>
+        </mxCell>
+        <mxCell id="dlq" value="DLQ&lt;br&gt;fcp_sfd_crm_requests-deadletter" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="1470" y="805" width="280" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="crm" value="fcp-sfd-crm" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="760" y="970" width="500" height="370" as="geometry"/>
+        </mxCell>
+        <mxCell id="crmStar" value="" style="html=1;shape=mxgraph.basic.star;aspect=fixed;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="976" width="26" height="25" as="geometry"/>
+        </mxCell>
+        <mxCell id="crmConsumer" value="SQS consumer&lt;br&gt;&lt;i&gt;CloudEvents schema&lt;br&gt;validation&lt;/i&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="785" y="1020" width="150" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="crmDb" value="MongoDB cases&lt;br&gt;&lt;i&gt;dedupe by correlationId&lt;br&gt;+ fileId · creator role&lt;/i&gt;" style="shape=cylinder3;boundedLbl=1;backgroundOutline=1;size=10;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="1015" width="150" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="crmClient" value="&lt;b&gt;Dataverse client&lt;/b&gt;&lt;br&gt;Entra federated credentials token&lt;br&gt;$batch changeset, If-None-Match: *&lt;br&gt;&lt;i&gt;412 treated as already committed&lt;/i&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="785" y="1180" width="465" height="130" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="dataverse" value="&lt;b&gt;Dynamics 365 / Dataverse&lt;/b&gt;&lt;br&gt;contacts (CRN) · accounts (SBI)&lt;br&gt;rpa_documenttypeses&lt;br&gt;incidents · rpa_onlinesubmissions&lt;br&gt;rpa_activitymetadatas" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="1560" y="1100" width="330" height="150" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="snsCrm" value="SNS topic&lt;br&gt;&lt;b&gt;fcp_sfd_crm_events&lt;/b&gt;&lt;br&gt;&lt;i&gt;uk.gov.fcp.sfd.crm.case.created&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="170" y="1160" width="290" height="75" as="geometry"/>
+        </mxCell>
+        <mxCell id="fdm" value="fcp-fdm&lt;br&gt;&lt;i&gt;SQS fcp_fdm_events&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="170" y="800" width="260" height="75" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="auditTopics" value="SNS audit topics&lt;br&gt;fcp_audit_fcp_sfd_object_processor&lt;br&gt;fcp_audit_fcp_sfd_crm" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="1950" y="580" width="290" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="audit" value="fcp-audit" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="2020" y="760" width="150" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e1" value="1. POST /uploader/initiate&lt;br&gt;(bearer token)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="client" target="gateway">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e2" value="2. forward" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="gateway" target="opApi">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e3" value="3. POST /initiate&lt;br&gt;bucket, path, callback URL,&lt;br&gt;MIME types, max size, metadata" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=1;exitY=0.15;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;" edge="1" parent="1" source="opApi" target="uploaderBe">
+          <mxGeometry x="-0.35" relative="1" as="geometry">
+            <mxPoint as="offset"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e4" value="4. store upload session" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="opApi" target="opDb">
+          <mxGeometry x="-0.3" relative="1" as="geometry">
+            <mxPoint as="offset"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e5" value="5. uploadId, uploadUrl, statusUrl" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="opApi" target="client">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="740" y="222"/>
+              <mxPoint x="740" y="330"/>
+              <mxPoint x="130" y="330"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e6" value="6. browser posts file to /upload-and-scan/{uploadId}" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="client" target="uploaderFe">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="130" y="85"/>
+              <mxPoint x="1540" y="85"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e7" value="7. scan" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="uploaderFe" target="uploaderBe">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e8" value="8. store clean file" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="uploaderBe" target="s3">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e9" value="9. POST /api/v1/callback&lt;br&gt;scan outcome + S3 keys + metadata" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=0;exitY=0.85;exitDx=0;exitDy=0;entryX=1;entryY=0.95;entryDx=0;entryDy=0;" edge="1" parent="1" source="uploaderBe" target="opApi">
+          <mxGeometry x="0.3" relative="1" as="geometry">
+            <mxPoint as="offset"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e10" value="10. one transaction:&lt;br&gt;metadata + outbox entry" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.75;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="opApi" target="opDb">
+          <mxGeometry x="0.3" relative="1" as="geometry">
+            <mxPoint as="offset"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e11" value="11. claim PENDING" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="opOutbox" target="opDb">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e12" value="12. publish batch, mark SENT" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.9;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="opOutbox" target="snsOp">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e13" value="13. GET /uploader/status/{uploadId}&lt;br&gt;&lt;i&gt;polled until ready: success or failure&lt;/i&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="client" target="gateway">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="130" y="430"/>
+              <mxPoint x="505" y="430"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e14" value="14. topic subscription" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="snsOp" target="sqsCrm">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e15" value="15. long poll, batch of 10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="sqsCrm" target="crmConsumer">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e16" value="16. dedupe, claim creator" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="crmConsumer" target="crmDb">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e17" value="17. create case or attach metadata" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.15;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="crmConsumer" target="crmClient">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e18" value="18. look up contact by CRN,&lt;br&gt;account by SBI, document type" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=1;exitY=0.2;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;" edge="1" parent="1" source="crmClient" target="dataverse">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e19" value="19. changeset: incident + online&lt;br&gt;submission + activity metadata" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=1;exitY=0.85;exitDx=0;exitDy=0;entryX=0;entryY=0.8;entryDx=0;entryDy=0;" edge="1" parent="1" source="crmClient" target="dataverse">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e20" value="20. publish case created" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="crmClient" target="snsCrm">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e21" value="terminal failure" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;strokeColor=#b85450;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="crmConsumer" target="dlq">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="860" y="925"/>
+              <mxPoint x="1610" y="925"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e22" value="document uploaded events" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="snsOp" target="fdm">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="620" y="667"/>
+              <mxPoint x="620" y="837"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e23" value="case created events" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="snsCrm" target="fdm">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="90" y="1197"/>
+              <mxPoint x="90" y="837"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e24" value="document created / failed,&lt;br&gt;auth failures" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.4;entryDx=0;entryDy=0;" edge="1" parent="1" source="opApi" target="auditTopics">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1330" y="222"/>
+              <mxPoint x="1330" y="510"/>
+              <mxPoint x="1900" y="510"/>
+              <mxPoint x="1900" y="612"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e25" value="person / business read,&lt;br&gt;document created" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.8;entryDx=0;entryDy=0;" edge="1" parent="1" source="crmClient" target="auditTopics">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1370" y="1245"/>
+              <mxPoint x="1370" y="644"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e26" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;" edge="1" parent="1" source="auditTopics" target="audit">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="noteOutbox" value="&lt;b&gt;Transactional outbox&lt;/b&gt;&lt;br&gt;Metadata and its outbox entry are written in a single MongoDB transaction, so a persisted document always produces an event. The worker retries until SNS accepts the batch." style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=8;fillColor=#f5f5f5;strokeColor=#999999;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="1880" y="120" width="300" height="150" as="geometry"/>
+        </mxCell>
+        <mxCell id="noteCallback" value="&lt;b&gt;Callback validation&lt;/b&gt;&lt;br&gt;Joi schema, then contract checks (uploadStatus ready, every file complete), then per-file consistency checks. A rejected payload is persisted as a status record readable at GET /api/v1/status/{correlationId}." style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=8;fillColor=#f5f5f5;strokeColor=#999999;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="1880" y="300" width="300" height="150" as="geometry"/>
+        </mxCell>
+        <mxCell id="noteDedupe" value="&lt;b&gt;Multi-file submissions&lt;/b&gt;&lt;br&gt;One correlationId covers every file in a batch. The first file creates the case; the rest attach an activity metadata record to the online submission already on that case. An exact repeat of correlationId + fileId is skipped." style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=8;fillColor=#f5f5f5;strokeColor=#999999;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="1560" y="1300" width="330" height="150" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <diagram name="Document retrieval" id="sfd-document-retrieval">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1750" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="r0"/>
+        <mxCell id="r1" parent="r0"/>
+
+        <mxCell id="rTitle" value="SFD document retrieval" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=20;fontStyle=1" vertex="1" parent="r1">
+          <mxGeometry x="40" y="20" width="400" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="rSubtitle" value="Reading uploaded documents and their metadata back out of the object processor." style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=12" vertex="1" parent="r1">
+          <mxGeometry x="40" y="52" width="700" height="20" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="rClient" value="Consuming service&lt;br&gt;&lt;i&gt;client portal or internal caseworker frontend&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="r1">
+          <mxGeometry x="40" y="220" width="200" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="rGateway" value="CDP API Gateway&lt;br&gt;&lt;i&gt;Cognito or Entra JWT&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="r1">
+          <mxGeometry x="440" y="225" width="180" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="rOp" value="fcp-sfd-object-processor" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;dashed=1;" vertex="1" parent="r1">
+          <mxGeometry x="820" y="150" width="400" height="350" as="geometry"/>
+        </mxCell>
+        <mxCell id="rOpStar" value="" style="html=1;shape=mxgraph.basic.star;aspect=fixed;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="r1">
+          <mxGeometry x="1180" y="156" width="26" height="25" as="geometry"/>
+        </mxCell>
+        <mxCell id="rOpApi" value="&lt;b&gt;Read endpoints&lt;/b&gt;&lt;br&gt;GET /api/v1/blob/{fileId}&lt;br&gt;GET /api/v1/metadata/sbi/{sbi}&lt;br&gt;GET /api/v1/status/{correlationId}" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=8;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="r1">
+          <mxGeometry x="845" y="200" width="350" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="rOpDb" value="MongoDB&lt;br&gt;&lt;i&gt;metadata · status&lt;/i&gt;" style="shape=cylinder3;boundedLbl=1;backgroundOutline=1;size=10;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="r1">
+          <mxGeometry x="845" y="390" width="160" height="95" as="geometry"/>
+        </mxCell>
+        <mxCell id="rOpS3Client" value="S3 client&lt;br&gt;&lt;i&gt;presigned URL&lt;/i&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="r1">
+          <mxGeometry x="1060" y="395" width="135" height="85" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="rS3" value="S3 bucket&lt;br&gt;&lt;i&gt;{env}-fcp-sfd-object-processor-bucket&lt;/i&gt;" style="shape=cylinder3;boundedLbl=1;backgroundOutline=1;size=10;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;" vertex="1" parent="r1">
+          <mxGeometry x="1420" y="390" width="290" height="90" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="rAudit" value="SNS topic&lt;br&gt;fcp_audit_fcp_sfd_object_processor" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="r1">
+          <mxGeometry x="845" y="650" width="330" height="75" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="re1" value="1. GET blob, metadata or status" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="r1" source="rClient" target="rGateway">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="re2" value="2. forward" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="r1" source="rGateway" target="rOpApi">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="re3" value="3. look up record" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="r1" source="rOpApi" target="rOpDb">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="re4" value="4. sign S3 reference" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=0.85;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="r1" source="rOpApi" target="rOpS3Client">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="re5" value="5. presigned URL,&lt;br&gt;expires after 300s" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="r1" source="rOpS3Client" target="rS3">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="re6" value="6. URL returned; browser fetches the file direct from S3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;exitX=0;exitY=0.35;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="r1" source="rOpApi" target="rClient">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="770" y="238"/>
+              <mxPoint x="770" y="360"/>
+              <mxPoint x="140" y="360"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="re7" value="document/read audit event per file" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;exitX=0;exitY=0.9;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="r1" source="rOpApi" target="rAudit">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="700" y="299"/>
+              <mxPoint x="700" y="687"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rNote" value="&lt;b&gt;Note&lt;/b&gt;&lt;br&gt;No file content passes through the object processor on retrieval. It returns a short-lived presigned URL and the caller fetches the object from S3 directly.&lt;br&gt;&lt;br&gt;/status/{correlationId} returns persisted callback validation outcomes, which is how a client distinguishes a rejected upload from one still in flight." style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=8;fillColor=#f5f5f5;strokeColor=#999999;dashed=1;" vertex="1" parent="r1">
+          <mxGeometry x="1400" y="620" width="310" height="210" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
