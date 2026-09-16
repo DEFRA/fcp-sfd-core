@@ -175,3 +175,8 @@ Notes:
 - Each service snippet builds from a sibling repo using `../../<service-name>` as the Docker build context and typically mounts `src` and `package.json` from that repo for rapid local development.
 - Local dependencies commonly include an AWS emulator (LocalStack or Floci), MongoDB and sometimes Redis. The Docker network name used across compose files is `fcp-sfd`.
 - Container and image naming convention: `{service}-development`.
+
+## Diagrams
+
+Draw.io sources live in [`docs/diagrams`](docs/diagrams). [`document-upload.drawio`](docs/diagrams/document-upload.drawio)
+covers the document upload and retrieval journeys across the object processor, CDP Uploader and CRM.

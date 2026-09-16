@@ -1,0 +1,74 @@
+meta {
+  name: Get Files in Submission Attribute Metadata
+  type: http
+  seq: 11
+}
+
+get {
+  url: {{CRM_URL}}/EntityDefinitions(LogicalName='rpa_onlinesubmission')/Attributes(LogicalName='rpa_filesinsubmission')?$select=LogicalName,SchemaName,AttributeType,AttributeTypeName,SourceType,IsValidForCreate,IsValidForUpdate
+  body: none
+  auth: inherit
+}
+
+params:query {
+  $select: LogicalName,SchemaName,AttributeType,AttributeTypeName,SourceType,IsValidForCreate,IsValidForUpdate
+}
+
+settings {
+  encodeUrl: false
+  timeout: 0
+}
+
+docs {
+  Settles blocking decision B1 in
+  plans/files-in-submission-crm-mapping-20260827-1612.md: the logical name
+  and data type of the "Files in Submission" field shown as required but
+  empty on the Online Submission form.
+
+  h4. Answer
+
+    LogicalName        rpa_filesinsubmission
+    SchemaName         rpa_FilesinSubmission
+    AttributeType      Integer (IntegerAttributeMetadata)
+    SourceType         0, a plain attribute
+    IsValidForCreate   true
+    IsValidForUpdate   true
+
+  Three consequences. Integer means fcp-sfd-crm must send a JSON number, not
+  a string. Both existing writers in the estate
+  (ffc-ice-crm/app/services/crm-client.js:42 and
+  fcp-sfd-core/resources/crm/crm-dev.json:548) send a quoted string and rely
+  on Dataverse coercing it, so neither is a safe template to copy.
+  SourceType 0 means the attribute is plain rather than calculated or
+  rollup, so Dynamics does not own the value and the service must write it.
+  IsValidForCreate true means the create-only write with If-None-Match: '*'
+  holds, so no PATCH path is needed.
+
+  h4. Why the attribute is addressed by key
+
+  The attribute is reached directly, as
+  Attributes(LogicalName='rpa_filesinsubmission'), rather than by filtering
+  the attribute collection. Metadata entities do not support the startswith
+  function, so a name-prefix search fails outright with
+
+    The "startswith" function isn't supported for Metadata Entities
+    (code 0x8006088a)
+
+  and DisplayName cannot be filtered server-side either, being a complex
+  type. Addressing by key avoids the question. To search by label rather
+  than by name, use "List All Attributes on rpa_onlinesubmission" and scan
+  the result by eye.
+
+  h4. MaxLength
+
+  Deliberately absent from the $select. It is exposed only on
+  StringAttributeMetadata, so selecting it on the base type fails the whole
+  request, and on an Integer attribute it does not apply in any case. Use
+  "Get String Attribute MaxLength" for string attributes.
+
+  h4. Per environment
+
+  Re-run this against each environment before promoting the write into it.
+  The attribute is solution-deployed, so its presence in SANDBOX proves
+  nothing about TEST, UAT or PRODUCTION.
+}

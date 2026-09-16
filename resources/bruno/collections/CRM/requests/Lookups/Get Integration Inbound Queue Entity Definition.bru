@@ -1,0 +1,101 @@
+meta {
+  name: Get Integration Inbound Queue Entity Definition
+  type: http
+  seq: 12
+}
+
+get {
+  url: {{CRM_URL}}/EntityDefinitions(LogicalName='{{entityLogicalName}}')?$select=LogicalName,EntitySetName,PrimaryIdAttribute,PrimaryNameAttribute&$expand=Attributes($select=LogicalName,SchemaName,AttributeType,RequiredLevel,IsValidForCreate,IsValidForUpdate,DisplayName)
+  body: none
+  auth: inherit
+}
+
+params:query {
+  $select: LogicalName,EntitySetName,PrimaryIdAttribute,PrimaryNameAttribute
+  $expand: Attributes($select=LogicalName,SchemaName,AttributeType,RequiredLevel,IsValidForCreate,IsValidForUpdate,DisplayName)
+}
+
+vars:pre-request {
+  entityLogicalName: rpa_integrationinboundqueue
+}
+
+settings {
+  encodeUrl: false
+  timeout: 0
+}
+
+docs {
+  Establishes the contract for the CRM integration inbound queue, the entity
+  the doc-upload integration must write to when a submission cannot be turned
+  into a correctly categorised case. Nothing in fcp-sfd-crm describes this
+  entity, so its shape has to be read from Dataverse rather than assumed.
+
+  Background: David Aitchison (DDTS CRM) confirmed on 9 July 2026 that a
+  submission with unusable data must be reported as an error and stopped,
+  never written to CRM with fallback values. The four conditions that must
+  raise a record are an unresolvable CRN, an unresolvable SBI, no document
+  type matching the case type, and a document type row found but missing
+  scheme, subject, team routing or id.
+
+  h4. Answer, from the rpadevv9 organisation
+
+    LogicalName           rpa_integrationinboundqueue
+    EntitySetName         rpa_integrationinboundqueues
+    PrimaryIdAttribute    rpa_integrationinboundqueueid
+    PrimaryNameAttribute  rpa_name
+
+  The name used in the email, rpa_integrationinboundqueues, is the entity
+  *set* name used in record URLs. EntityDefinitions is keyed on the logical
+  name, the singular. Both are confirmed above.
+
+  h4. Writable attributes
+
+    rpa_name                  String    ApplicationRequired
+    rpa_errordetails          Memo      optional
+    rpa_xmlmessage            Memo      optional
+    rpa_processingentity      Picklist  optional
+    rpa_processingresult      Picklist  optional
+    rpa_processingstage       Picklist  optional
+    rpa_attempt               Integer   optional
+    rpa_dateprocessed         DateTime  optional
+    statuscode                Status    optional, valid for create
+    rpa_integrationinboundqueueid  Uniqueidentifier, valid for create
+
+  *rpa_name is the only attribute the write will fail without.* Everything
+  else marked SystemRequired in the response is either a platform-managed
+  virtual field or is not valid for create.
+
+  Two consequences worth noting. The primary key is valid for create, so a
+  deterministic GUID can be supplied and the record written create-only with
+  If-None-Match: '*', which is how duplicate triage records are avoided on
+  replay. And statecode is *not* valid for create, only for update, so the
+  record's state is whatever the entity defaults to; only statuscode can be
+  set at creation.
+
+  h4. The gap this exposes
+
+  *There is no attribute for CRN, SBI, case type or correlation identifier.*
+  The entity has no field intended to carry them.
+
+  rpa_errordetails is agreed with DDTS CRM as the field carrying the error
+  details, and being a Memo it is not length constrained the way the string
+  fields are. It is therefore also the only practical home for the
+  correlation identifier, without which a triage record cannot be traced
+  back to the message on the dead letter queue. Structure its content
+  consistently rather than writing a free-text message, so a triager finds
+  the identifier in the same place every time.
+
+  MaxLength on rpa_name is not in the $select above, because it is exposed
+  only on StringAttributeMetadata and selecting it here fails the whole
+  request. Get it from "Get String Attribute MaxLength", changing the entity
+  in that request's URL, before deciding what rpa_name carries.
+
+  The three picklists and statuscode need their permitted values before
+  anything can be written: see "Get Integration Inbound Queue Option Sets".
+
+  h4. Per environment
+
+  Run this against each environment before enabling the write there. The
+  entity is solution-deployed, so its presence and shape in rpadevv9 proves
+  neither in TEST, UAT nor PRODUCTION.
+}
