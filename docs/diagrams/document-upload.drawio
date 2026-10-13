@@ -28,7 +28,7 @@
         <mxCell id="opStar" value="" style="html=1;shape=mxgraph.basic.star;aspect=fixed;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
           <mxGeometry x="1210" y="126" width="26" height="25" as="geometry"/>
         </mxCell>
-        <mxCell id="opApi" value="&lt;b&gt;REST API (Hapi)&lt;/b&gt;&lt;br&gt;POST /api/v1/uploader/initiate&lt;br&gt;GET&#160; /api/v1/uploader/status/{uploadId}&lt;br&gt;POST /api/v1/callback &lt;i&gt;(auth: false)&lt;/i&gt;&lt;br&gt;GET&#160; /api/v1/status/{correlationId}" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=8;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="1">
+        <mxCell id="opApi" value="&lt;b&gt;REST API (Hapi)&lt;/b&gt;&lt;br&gt;POST /api/v1/uploader/initiate&lt;br&gt;GET&#160; /api/v1/uploader/status/{uploadId}&lt;br&gt;POST /api/v1/callback &lt;i&gt;(auth: false)&lt;/i&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=8;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="1">
           <mxGeometry x="810" y="165" width="320" height="115" as="geometry"/>
         </mxCell>
         <mxCell id="opDb" value="MongoDB&lt;br&gt;&lt;i&gt;metadata · outbox&lt;br&gt;sessions · status&lt;/i&gt;" style="shape=cylinder3;boundedLbl=1;backgroundOutline=1;size=10;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="1">
@@ -228,7 +228,7 @@
         <mxCell id="noteOutbox" value="&lt;b&gt;Transactional outbox&lt;/b&gt;&lt;br&gt;Metadata and its outbox entry are written in a single MongoDB transaction, so a persisted document always produces an event. The worker retries until SNS accepts the batch." style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=8;fillColor=#f5f5f5;strokeColor=#999999;dashed=1;" vertex="1" parent="1">
           <mxGeometry x="1880" y="120" width="300" height="150" as="geometry"/>
         </mxCell>
-        <mxCell id="noteCallback" value="&lt;b&gt;Callback validation&lt;/b&gt;&lt;br&gt;Joi schema, then contract checks (uploadStatus ready, every file complete), then per-file consistency checks. A rejected payload is persisted as a status record readable at GET /api/v1/status/{correlationId}." style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=8;fillColor=#f5f5f5;strokeColor=#999999;dashed=1;" vertex="1" parent="1">
+        <mxCell id="noteCallback" value="&lt;b&gt;Callback validation&lt;/b&gt;&lt;br&gt;Joi schema, then contract checks (uploadStatus ready, every file complete), then per-file consistency checks." style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=8;fillColor=#f5f5f5;strokeColor=#999999;dashed=1;" vertex="1" parent="1">
           <mxGeometry x="1880" y="300" width="300" height="150" as="geometry"/>
         </mxCell>
         <mxCell id="noteDedupe" value="&lt;b&gt;Multi-file submissions&lt;/b&gt;&lt;br&gt;One correlationId covers every file in a batch. The first file creates the case; the rest attach an activity metadata record to the online submission already on that case. An exact repeat of correlationId + fileId is skipped." style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=8;fillColor=#f5f5f5;strokeColor=#999999;dashed=1;" vertex="1" parent="1">
@@ -264,7 +264,7 @@
         <mxCell id="rOpStar" value="" style="html=1;shape=mxgraph.basic.star;aspect=fixed;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="r1">
           <mxGeometry x="1180" y="156" width="26" height="25" as="geometry"/>
         </mxCell>
-        <mxCell id="rOpApi" value="&lt;b&gt;Read endpoints&lt;/b&gt;&lt;br&gt;GET /api/v1/blob/{fileId}&lt;br&gt;GET /api/v1/metadata/sbi/{sbi}&lt;br&gt;GET /api/v1/status/{correlationId}" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=8;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="r1">
+        <mxCell id="rOpApi" value="&lt;b&gt;Read endpoints&lt;/b&gt;&lt;br&gt;GET /api/v1/blob/{fileId}&lt;br&gt;GET /api/v1/metadata/sbi/{sbi}" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=8;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="r1">
           <mxGeometry x="845" y="200" width="350" height="110" as="geometry"/>
         </mxCell>
         <mxCell id="rOpDb" value="MongoDB&lt;br&gt;&lt;i&gt;metadata · status&lt;/i&gt;" style="shape=cylinder3;boundedLbl=1;backgroundOutline=1;size=10;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="r1">
@@ -315,7 +315,7 @@
           </mxGeometry>
         </mxCell>
 
-        <mxCell id="rNote" value="&lt;b&gt;Note&lt;/b&gt;&lt;br&gt;No file content passes through the object processor on retrieval. It returns a short-lived presigned URL and the caller fetches the object from S3 directly.&lt;br&gt;&lt;br&gt;/status/{correlationId} returns persisted callback validation outcomes, which is how a client distinguishes a rejected upload from one still in flight." style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=8;fillColor=#f5f5f5;strokeColor=#999999;dashed=1;" vertex="1" parent="r1">
+        <mxCell id="rNote" value="&lt;b&gt;Note&lt;/b&gt;&lt;br&gt;No file content passes through the object processor on retrieval. It returns a short-lived presigned URL and the caller fetches the object from S3 directly." style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=8;fillColor=#f5f5f5;strokeColor=#999999;dashed=1;" vertex="1" parent="r1">
           <mxGeometry x="1400" y="620" width="310" height="210" as="geometry"/>
         </mxCell>
       </root>

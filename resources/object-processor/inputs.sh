@@ -81,13 +81,6 @@ curl --request GET \
   --url https://fcp-sfd-object-processor.dev.cdp-int.defra.cloud/api/v1/blob/{fileId} \
   -H "Authorization: Bearer ${TOKEN}" | jq
 
-
-## 7. GET persisted callback validation status by correlationId
-### Records why a callback was rejected, when Joi or contract validation failed
-curl --request GET \
-  --url https://fcp-sfd-object-processor.dev.cdp-int.defra.cloud/api/v1/status/{correlationId} \
-  -H "Authorization: Bearer ${TOKEN}" | jq
-
 ########################################
 
 # TEST
@@ -148,12 +141,6 @@ curl --request GET \
   --url https://fcp-sfd-object-processor.test.cdp-int.defra.cloud/api/v1/blob/{fileId} \
   -H "Authorization: Bearer ${TOKEN}" | jq
 
-
-## 7. GET persisted callback validation status by correlationId
-curl --request GET \
-  --url https://fcp-sfd-object-processor.test.cdp-int.defra.cloud/api/v1/status/{correlationId} \
-  -H "Authorization: Bearer ${TOKEN}" | jq
-
 ########################################
 
 # PERF-TEST
@@ -210,11 +197,6 @@ curl --request GET \
 ## 6. GET blob reference by fileId
 curl --request GET \
   --url https://fcp-sfd-object-processor.perf-test.cdp-int.defra.cloud/api/v1/blob/{fileId} \
-  -H "Authorization: Bearer ${TOKEN}" | jq
-
-## 7. GET persisted callback validation status by correlationId
-curl --request GET \
-  --url https://fcp-sfd-object-processor.perf-test.cdp-int.defra.cloud/api/v1/status/{correlationId} \
   -H "Authorization: Bearer ${TOKEN}" | jq
 
 ########################################
