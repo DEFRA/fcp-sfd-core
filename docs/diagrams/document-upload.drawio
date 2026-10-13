@@ -267,7 +267,7 @@
         <mxCell id="rOpApi" value="&lt;b&gt;Read endpoints&lt;/b&gt;&lt;br&gt;GET /api/v1/blob/{fileId}&lt;br&gt;GET /api/v1/metadata/sbi/{sbi}" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=8;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="r1">
           <mxGeometry x="845" y="200" width="350" height="110" as="geometry"/>
         </mxCell>
-        <mxCell id="rOpDb" value="MongoDB&lt;br&gt;&lt;i&gt;metadata · status&lt;/i&gt;" style="shape=cylinder3;boundedLbl=1;backgroundOutline=1;size=10;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="r1">
+        <mxCell id="rOpDb" value="MongoDB&lt;br&gt;&lt;i&gt;metadata&lt;/i&gt;" style="shape=cylinder3;boundedLbl=1;backgroundOutline=1;size=10;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="r1">
           <mxGeometry x="845" y="390" width="160" height="95" as="geometry"/>
         </mxCell>
         <mxCell id="rOpS3Client" value="S3 client&lt;br&gt;&lt;i&gt;presigned URL&lt;/i&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="r1">
@@ -282,7 +282,7 @@
           <mxGeometry x="845" y="650" width="330" height="75" as="geometry"/>
         </mxCell>
 
-        <mxCell id="re1" value="1. GET blob, metadata or status" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="r1" source="rClient" target="rGateway">
+        <mxCell id="re1" value="1. GET blob or metadata" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="r1" source="rClient" target="rGateway">
           <mxGeometry relative="1" as="geometry"/>
         </mxCell>
         <mxCell id="re2" value="2. forward" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="r1" source="rGateway" target="rOpApi">
