@@ -1,0 +1,7 @@
+# Paths and values ignored by sfd-id-check. See scripts/check-synthetic-ids/README.md.
+
+# Tests deliberately use numbers outside the synthetic ranges.
+test/check-synthetic-ids/
+
+# Unix timestamp used in the README examples.
+value:1700000000
