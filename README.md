@@ -123,6 +123,17 @@ Switch to and pull the latest `main` branch for each microservice.
 npm run update
 ```
 
+## Synthetic ID check
+
+`sfd-id-check` blocks real-looking CRNs and SBIs from being committed to SFD repositories. It runs as a pre-commit hook and as a pull request check, and defines the agreed synthetic ID ranges. See [`scripts/check-synthetic-ids/README.md`](scripts/check-synthetic-ids/README.md).
+
+To enable the pre-commit hook in this repository, run once after cloning:
+
+```bash
+npm install
+npm run setup:husky
+```
+
 ## Bruno collections
 
 Bruno collections for exercising upstream integrations directly (outside the services themselves) are stored in `bruno/`. See [`bruno/readme.md`](bruno/readme.md) for import instructions and environment setup. The `CRM` collection covers the Dataverse CRM Web API used by `fcp-sfd-crm`, including its idempotent case-creation `$batch` changeset.

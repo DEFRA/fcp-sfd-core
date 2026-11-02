@@ -1,0 +1,54 @@
+name: Check for real-looking CRNs and SBIs
+description: >
+  Fails if a pull request adds a 10-digit (CRN) or 9-digit (SBI) number outside the
+  synthetic ranges. Reports file and line only, never the number.
+
+inputs:
+  base:
+    description: >
+      Commit to compare against. Defaults to the pull request's base: the first parent of the
+      merge commit that actions/checkout checks out for pull_request events.
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - name: Check added lines
+      shell: bash
+      env:
+        INPUT_BASE: ${{ inputs.base }}
+        EVENT_NAME: ${{ github.event_name }}
+        PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        SCRIPT: ${{ github.action_path }}/../../../scripts/check-synthetic-ids/index.js
+      run: |
+        set -euo pipefail
+
+        base="$INPUT_BASE"
+
+        if [ -z "$base" ]; then
+          if [ -z "$PR_BASE_SHA" ]; then
+            echo "::notice title=Synthetic ID check::Skipped: '$EVENT_NAME' is not a pull request event and no base was given."
+            exit 0
+          fi
+
+          # The merge commit's first parent is the base branch it was merged onto, so the diff is exactly the PR's changes.
+          # Read parents from the commit object, because a shallow checkout hides them from rev-list.
+          parents=$(git cat-file -p HEAD | sed -n 's/^parent //p')
+
+          if [ "$(printf '%s\n' "$parents" | grep -c .)" -ge 2 ]; then
+            base=$(printf '%s\n' "$parents" | head -n 1)
+          else
+            base="$PR_BASE_SHA"
+          fi
+        fi
+
+        if ! git cat-file -e "${base}^{commit}" 2>/dev/null; then
+          git fetch --no-tags --quiet --depth=1 origin "$base"
+        fi
+
+        if [ "$base" = "$PR_BASE_SHA" ] && merge_base=$(git merge-base "$base" HEAD 2>/dev/null); then
+          base="$merge_base"
+        fi
+
+        node "$SCRIPT" --base "$base" --head HEAD
