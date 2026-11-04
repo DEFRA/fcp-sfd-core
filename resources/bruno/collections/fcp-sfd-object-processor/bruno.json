@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "fcp-sfd-object-processor",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

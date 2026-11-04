@@ -1,0 +1,35 @@
+meta {
+  name: Upload file to CDP Uploader (binary stream)
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{UPLOAD_URL}}/
+  body: file
+  auth: none
+}
+
+headers {
+  Content-Type: application/octet-stream
+  x-filename: {{FILENAME}}
+}
+
+body:file {
+  file: @file(path/to/document) @contentType(application/octet-stream)
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  Uploads a single file as a raw octet stream to the CDP Uploader at the
+  UPLOAD_URL that Initiate upload session returned. The x-filename header
+  carries the file name, taken from FILENAME. Like the multipart request it
+  goes straight to the CDP Uploader, so it sends no bearer token.
+
+  Attach a real file in Bruno before running; the @file placeholder path is
+  not committed.
+}

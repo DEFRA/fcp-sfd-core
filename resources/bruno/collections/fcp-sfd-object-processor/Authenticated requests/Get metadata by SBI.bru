@@ -1,0 +1,22 @@
+meta {
+  name: Get metadata by SBI
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{BASE_URL}}/api/v1/metadata/sbi/{{SBI}}
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  Returns the stored metadata and file details for every document held
+  against an SBI. Read a fileId from the response into the FILE_ID variable
+  for Get blob URL by file ID.
+}

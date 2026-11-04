@@ -1,0 +1,25 @@
+meta {
+  name: Authenticated requests
+  seq: 4
+}
+
+auth {
+  mode: inherit
+}
+
+docs {
+  The end-to-end upload journey, which begins with an authenticated call.
+  Requests against fcp-sfd-object-processor inherit the collection bearer
+  auth, which sends ACCESS_TOKEN, so run Get Access Token first to populate
+  it.
+
+  The two Upload to CDP Uploader requests are the exception: they post
+  straight to the CDP Uploader at UPLOAD_URL, not to
+  fcp-sfd-object-processor, so they send no bearer token. They are kept here
+  because UPLOAD_URL only exists once the authenticated Initiate upload
+  session has run.
+
+  Order: Initiate upload session, then one of the two upload requests, then
+  Get uploader scan status, then Get metadata by SBI and Get blob URL by
+  file ID once the scan is ready.
+}

@@ -1,0 +1,30 @@
+vars {
+  BASE_URL: http://localhost:3004
+  ENV:
+  TOKEN_URL:
+  CLIENT_ID:
+  REDIRECT: /upload-complete
+  SBI: 800000000
+  CRN:
+  FRN: 1102658375
+  SUBMISSION_ID: 1733826312
+  UOSR: {{SBI}}_{{SUBMISSION_ID}}
+  DOCUMENT_TYPE: CS_Agreement_Evidence
+  REFERENCE: user entered reference
+  SERVICE: fcp-sfd-frontend
+  UPLOAD_STATUS: ready
+  FILE_ID: aa0bd0ce-e254-40b4-84b6-f5acded17fe8
+  FILENAME: test-file.pdf
+  CONTENT_TYPE: application/pdf
+  CONTENT_LENGTH: 102400
+  CHECKSUM_SHA256: bng5jOVC6TxEgwTUlX4DikFtDEYEc8vQTsOP0ZAv21c=
+  S3_KEY: scanned/{{FILE_ID}}
+  S3_BUCKET: test-bucket
+  UPLOAD_ID:
+  UPLOAD_URL:
+}
+
+vars:secret [
+  CLIENT_SECRET,
+  ACCESS_TOKEN
+]

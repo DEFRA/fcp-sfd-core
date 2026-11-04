@@ -1,0 +1,67 @@
+meta {
+  name: Process upload callback
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{BASE_URL}}/api/v1/callback
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "uploadStatus": "{{UPLOAD_STATUS}}",
+    "metadata": {
+      "sbi": {{SBI}},
+      "crn": {{CRN}},
+      "frn": {{FRN}},
+      "submissionId": "{{SUBMISSION_ID}}",
+      "uosr": "{{UOSR}}",
+      "type": "{{DOCUMENT_TYPE}}",
+      "reference": "{{REFERENCE}}",
+      "service": "{{SERVICE}}"
+    },
+    "form": {
+      "file1": {
+        "fileId": "{{FILE_ID}}",
+        "filename": "{{FILENAME}}",
+        "contentType": "{{CONTENT_TYPE}}",
+        "detectedContentType": "{{CONTENT_TYPE}}",
+        "fileStatus": "complete",
+        "contentLength": {{CONTENT_LENGTH}},
+        "checksumSha256": "{{CHECKSUM_SHA256}}",
+        "s3Key": "{{S3_KEY}}",
+        "s3Bucket": "{{S3_BUCKET}}"
+      }
+    },
+    "numberOfRejectedFiles": 0
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  The CDP Uploader callback. The service sets auth false on /api/v1/callback
+  because the caller is an external service, so no token is sent.
+
+  The metadata object accepts only sbi, crn, frn, submissionId, uosr, type,
+  reference and service. Any other field fails validation, and a validation
+  failure is persisted as a status record and answered with 201 rather than
+  rejected, so no metadata appears for that payload.
+
+  A file with fileStatus complete must carry s3Key, s3Bucket, checksumSha256
+  and a contentLength above zero, and must not carry hasError, errorMessage,
+  errorCode or errorParams.
+
+  FILE_ID is reused by Get blob URL by file ID, so a run that posts this
+  callback leaves FILE_ID pointing at the file it registered.
+}

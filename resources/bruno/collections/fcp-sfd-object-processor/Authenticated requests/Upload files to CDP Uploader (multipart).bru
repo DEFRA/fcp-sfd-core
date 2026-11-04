@@ -1,0 +1,35 @@
+meta {
+  name: Upload files to CDP Uploader (multipart)
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{UPLOAD_URL}}/
+  body: multipartForm
+  auth: none
+}
+
+body:multipart-form {
+  document1: @file(path/to/first-document)
+  document: @file(path/to/second-document)
+  document: @file(path/to/third-document)
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  Uploads one or more files straight to the CDP Uploader at the UPLOAD_URL
+  that Initiate upload session returned, which triggers the scan and, once
+  ready, the callback. This does not go through fcp-sfd-object-processor, so
+  it sends no bearer token.
+
+  Attach real files in Bruno before running; the @file placeholder paths are
+  not committed. The field names are arbitrary. The CDP Uploader reads every
+  file part regardless of name, so a single field repeated (document) or
+  distinct names (document1) both work. Do not set a Content-Type header by
+  hand; Bruno sets multipart/form-data with the boundary for you.
+}

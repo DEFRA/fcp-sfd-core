@@ -1,0 +1,25 @@
+meta {
+  name: fcp-sfd-object-processor
+}
+
+auth {
+  mode: bearer
+}
+
+auth:bearer {
+  token: {{ACCESS_TOKEN}}
+}
+
+docs {
+  Requests against the fcp-sfd-object-processor API. Mirrors
+  docs/openapi/v1.json in the fcp-sfd-object-processor repository. Check
+  against that spec if a request is rejected.
+
+  The collection sends the bearer token in ACCESS_TOKEN on every request.
+  Health check and Process upload callback override this to no auth, because
+  the service disables authentication on /health and /api/v1/callback. The
+  requests that need a token are grouped under "Authenticated requests".
+
+  Run Get Access Token first. Its post-response script stores the token in
+  ACCESS_TOKEN for the rest of the collection to use.
+}
