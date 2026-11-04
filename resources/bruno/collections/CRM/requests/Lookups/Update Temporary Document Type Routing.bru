@@ -1,0 +1,110 @@
+meta {
+  name: Update Temporary Document Type Routing
+  type: http
+  seq: 18
+}
+
+patch {
+  url: {{CRM_URL}}/rpa_documenttypeses({{TEMP_DOCUMENT_TYPE_ID}})
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+  If-Match: *
+}
+
+script:pre-request {
+  const id = bru.getEnvVar("TEMP_DOCUMENT_TYPE_ID");
+  if (!id) {
+    throw new Error('TEMP_DOCUMENT_TYPE_ID is not set. Run "Create Temporary Document Type" first, or set it by hand to the row you mean to change.');
+  }
+
+  const navs = {
+    scheme: bru.getEnvVar("SCHEME_NAV"),
+    subject: bru.getEnvVar("SUBJECT_NAV"),
+    teamRouting: bru.getEnvVar("TEAMROUTING_NAV")
+  };
+  const values = {
+    scheme: bru.getEnvVar("SCHEME_VALUE"),
+    subject: bru.getEnvVar("SUBJECT_VALUE"),
+    teamRouting: bru.getEnvVar("teamRoutingValue")
+  };
+
+  const missing = Object.entries({ ...navs, ...values })
+    .filter(([, v]) => !v)
+    .map(([k]) => k);
+  if (missing.length) {
+    throw new Error(`Missing ${missing.join(", ")}. Run "Get Document Type Lookup Bind Names" for the nav properties and "Get Document Type Metadata" against the type whose routing you want to copy.`);
+  }
+
+  const payload = {};
+  payload[`${navs.scheme}@odata.bind`] = `/rpa_schemes(${values.scheme})`;
+  payload[`${navs.subject}@odata.bind`] = `/subjects(${values.subject})`;
+  payload[`${navs.teamRouting}@odata.bind`] = `/teams(${values.teamRouting})`;
+
+  console.log(JSON.stringify(payload, null, 2));
+  bru.setVar("tempDocumentTypePatchBody", JSON.stringify(payload));
+}
+
+body:json {
+  {{tempDocumentTypePatchBody}}
+}
+
+script:post-response {
+  const status = res.getStatus();
+  if (status === 204) {
+    console.log(`updated ${bru.getEnvVar("TEMP_DOCUMENT_TYPE_ID")}`);
+    console.log('Re-run "Get Document Type Metadata" against the temporary type to confirm the three lookups now read back as expected.');
+  } else {
+    console.log(`HTTP ${status}`);
+    console.log(JSON.stringify(res.getBody(), null, 2));
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  Repoints the temporary document type's scheme, subject and team routing at
+  another document type's values, without recreating the row.
+
+  Needed because a document type can be complete and still unusable. The four
+  lookups being populated is all buildCaseChangeset checks, but the team they
+  name must also hold prvReadIncident, since every case is created with
+  ownerid bound to it (src/repos/crm.js:496). A team without that privilege
+  produces a 400 on the changeset:
+
+    Read Privilege Check For Owner failed ... is missing prvReadIncident
+    privilege ... for entity 'incident'
+
+  Appeal_Evidence in rpadevv9 routes to such a team, so it cannot create a
+  case at all. CS_Agreement_Evidence routes to a team that already owns
+  cases, which is the quick way to tell the difference:
+
+    /incidents?$select=incidentid&$filter=_ownerid_value eq <teamId>&$top=1
+
+  A row back means that team demonstrably can own a case.
+
+  h4. Order
+
+  # "Get Document Type Lookup Bind Names", for the three navigation
+    properties.
+  # "Get Document Type Metadata" against the type whose routing you want,
+    CS_Agreement_Evidence for instance. It sets SCHEME_VALUE, SUBJECT_VALUE
+    and teamRoutingValue.
+  # This request.
+
+  All three lookups are copied together rather than the team alone, so the row
+  stays internally consistent with the type it was taken from.
+
+  h4. If-Match
+
+  The If-Match: * header makes this update-only. Without it a PATCH to an
+  identifier that does not exist would *create* a row at that id, which is how
+  the service writes its own records deliberately and is the last thing wanted
+  here. A missing row answers 404 instead.
+}

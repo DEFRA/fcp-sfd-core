@@ -1,0 +1,144 @@
+meta {
+  name: Create Temporary Document Type
+  type: http
+  seq: 16
+}
+
+post {
+  url: {{CRM_URL}}/rpa_documenttypeses
+  body: json
+  auth: inherit
+}
+
+script:pre-request {
+  // Defined here, not in a vars:pre-request block. bru.getVar reads only
+  // runtime variables; a vars:pre-request entry populates request variables,
+  // which are a separate collection used solely for {{...}} interpolation and
+  // are invisible to bru.getVar. Override with a TEMP_DOCUMENT_TYPE
+  // environment variable if a different name is wanted.
+  const documentType = bru.getEnvVar("TEMP_DOCUMENT_TYPE") || "FLS1-169-no-such-doc-type";
+
+  // rpa_name is capped at 13 characters on this entity, which is why the real
+  // rows carry short codes such as DUAPPEVD rather than the document type
+  // name. It is a separate value from rpa_documenttype, which is the
+  // attribute the case-type lookup actually filters on and is not so capped.
+  const NAME_MAX_LENGTH = 13;
+  const name = bru.getEnvVar("TEMP_DOCUMENT_TYPE_NAME") || "FLS1169TMP";
+  if (name.length > NAME_MAX_LENGTH) {
+    throw new Error(`rpa_name "${name}" is ${name.length} characters; the entity allows ${NAME_MAX_LENGTH}.`);
+  }
+
+  const navs = {
+    scheme: bru.getEnvVar("SCHEME_NAV"),
+    subject: bru.getEnvVar("SUBJECT_NAV"),
+    teamRouting: bru.getEnvVar("TEAMROUTING_NAV")
+  };
+  const values = {
+    scheme: bru.getEnvVar("SCHEME_VALUE"),
+    subject: bru.getEnvVar("SUBJECT_VALUE"),
+    teamRouting: bru.getEnvVar("teamRoutingValue")
+  };
+
+  // documentType is checked alongside the rest. JSON.stringify drops a key
+  // whose value is undefined, so an unset name does not fail the request: it
+  // creates a nameless row that the case-type lookup can never match, and the
+  // replay goes on reporting document_type_not_found with nothing to show why.
+  const missing = Object.entries({ ...navs, ...values, documentType, name })
+    .filter(([, v]) => !v)
+    .map(([k]) => k);
+  if (missing.length) {
+    throw new Error(`Missing ${missing.join(", ")}. Run "Get Document Type Lookup Bind Names" for the nav properties and "Get Document Type Metadata" against a working type for the values.`);
+  }
+
+  const payload = {
+    rpa_documenttype: documentType,
+    rpa_name: name
+  };
+  payload[`${navs.scheme}@odata.bind`] = `/rpa_schemes(${values.scheme})`;
+  payload[`${navs.subject}@odata.bind`] = `/subjects(${values.subject})`;
+  payload[`${navs.teamRouting}@odata.bind`] = `/teams(${values.teamRouting})`;
+
+  console.log(JSON.stringify(payload, null, 2));
+  bru.setVar("tempDocumentTypeBody", JSON.stringify(payload));
+}
+
+body:json {
+  {{tempDocumentTypeBody}}
+}
+
+headers {
+  Content-Type: application/json
+  Prefer: return=representation
+}
+
+script:post-response {
+  const body = res.getBody();
+  const id = body?.rpa_documenttypesid;
+  if (id) {
+    bru.setEnvVar("TEMP_DOCUMENT_TYPE_ID", id);
+    console.log(`created "${body.rpa_documenttype}" as ${id}`);
+    if (!body.rpa_documenttype) {
+      console.log('WARNING: the row has no rpa_documenttype. The case-type lookup filters on that attribute alone, so nothing will ever match it. Delete the row and investigate.');
+    }
+    console.log('Delete it with "Delete Temporary Document Type" once the evidence is captured.');
+  } else {
+    console.log(`HTTP ${res.getStatus()}`);
+    console.log(JSON.stringify(body, null, 2));
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  Creates a throwaway rpa_documenttypeses row, so that a submission which
+  failed with document_type_not_found can be replayed and succeed. That is
+  FLS1-169 acceptance criterion 7: a message replays cleanly once the
+  underlying CRM data is corrected.
+
+  A throwaway row is used in preference to repairing a real one. The only
+  genuinely incomplete row in rpadevv9 is CS_Capital_Claim_Evidence, which is
+  missing its team routing, and the correct team for it must come from DDTS
+  CRM. Guessing would write wrong routing into live reference data, and a real
+  submission arriving during the window would then be created against the
+  wrong team, which is worse than the failure it replaces.
+
+  h4. Before running
+
+  # "Get Document Type Lookup Bind Names" sets SCHEME_NAV, SUBJECT_NAV and
+    TEAMROUTING_NAV.
+  # "Get Document Type Metadata" against a working type, Appeal_Evidence for
+    instance, sets SCHEME_VALUE, SUBJECT_VALUE and teamRoutingValue.
+
+  The pre-request script builds the payload from those six values and refuses
+  to run if any is missing. The bind paths assume the lookups target
+  rpa_schemes, subjects and teams, confirmed against rpadevv9 by
+  "Get Document Type Lookup Bind Names".
+
+  h4. Two attributes, not one
+
+  rpa_documenttype is what getDocumentTypeMetadata filters on, so it carries
+  the full case type such as FLS1-169-no-such-doc-type. rpa_name is a
+  *separate* short code, capped at 13 characters, which is why the real rows
+  hold values like DUAPPEVD. Setting rpa_name to the full case type is
+  rejected with "The length of the 'rpa_name' attribute ... exceeded the
+  maximum allowed length of '13'". The script defaults it to FLS1169TMP;
+  override with TEMP_DOCUMENT_TYPE_NAME.
+
+  h4. Afterwards
+
+  *Delete the row.* It is test data in a shared organisation, and while it
+  exists the case type is a valid choice that routes to whichever team was
+  copied. TEMP_DOCUMENT_TYPE_ID is set for "Delete Temporary Document Type".
+
+  The case created by the replay is also junk. Ask DDTS CRM whether they want
+  it deactivated.
+
+  h4. If this answers 403
+
+  The application user may be permitted to write cases and triage records but
+  not reference data. In that event acceptance criterion 7 needs DDTS CRM to
+  make the change, and cannot be completed from here.
+}

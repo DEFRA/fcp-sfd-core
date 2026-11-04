@@ -19,10 +19,6 @@ params:path {
   caseId: {{caseId}}
 }
 
-vars:pre-request {
-  caseId: dead91e9-b6f2-401e-87c5-c57f3002f7cc
-}
-
 headers {
   Authorization: Bearer ACCESS_TOKEN
   Accept: application/json
@@ -37,6 +33,14 @@ settings {
 
 docs {
   Plain GET of a case by incidentid. $expand/$select are present but
-  disabled (~) — enable as needed. Set caseId to the case you want to
-  inspect.
+  disabled (~) — enable as needed. Set {{caseId}} in the environment to the
+  case you want to inspect.
+
+  caseId used to be pinned here as a pre-request variable. It was removed
+  because a request-level variable silently overrides both the environment
+  and a CLI --env-var (see @usebruno/cli src/runner/interpolate-vars.js), so
+  the pinned value won every time and this request always fetched the same
+  old case no matter what the caller asked for. That made it useless as a
+  "does this case exist" check, which is what the FLS1-169 runner needs it
+  for: it derives a case id and expects a 404.
 }
