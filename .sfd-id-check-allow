@@ -5,3 +5,12 @@ test/check-synthetic-ids/
 
 # Unix timestamp used in the README examples.
 value:1700000000
+
+# Object-processor example payloads: an FRN (not a CRN or SBI).
+value:1102658375
+
+# Object-processor example payloads: a submission timestamp, not a CRN.
+value:1733826312
+
+# Confluence page id in the Cognito token documentation link.
+value:6468732912

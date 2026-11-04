@@ -1,0 +1,44 @@
+meta {
+  name: Get Access Token
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{TOKEN_URL}}/
+  body: formUrlEncoded
+  auth: none
+}
+
+headers {
+  Content-Type: application/x-www-form-urlencoded
+}
+
+body:form-urlencoded {
+  grant_type: client_credentials
+  client_id: {{CLIENT_ID}}
+  client_secret: {{CLIENT_SECRET}}
+}
+
+script:post-response {
+  const response = res.getBody();
+  bru.setEnvVar("ACCESS_TOKEN", response.access_token);
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  Exchanges CLIENT_ID and CLIENT_SECRET for a bearer token by the
+  client_credentials grant against TOKEN_URL, and stores it in ACCESS_TOKEN.
+  Run this first. Every request under "Authenticated requests" reads the
+  token from ACCESS_TOKEN.
+  
+  TOKEN_URL is the token endpoint for the environment's chosen identity
+  provider. Entra ID is enabled by default and Cognito is off by default, so
+  the endpoint and the credentials depend on that configuration. Cognito
+  token instructions are on Confluence:
+  https://eaflood.atlassian.net/wiki/spaces/SFD/pages/6468732912/Generate+Cognito+Bearer+token+for+use+with+Object-Processor
+}

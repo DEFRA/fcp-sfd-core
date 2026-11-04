@@ -1,0 +1,22 @@
+meta {
+  name: Get blob URL by file ID
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{BASE_URL}}/api/v1/blob/{{FILE_ID}}
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  Returns a presigned S3 URL for the file identified by FILE_ID. Get a
+  fileId from Get metadata by SBI, or use the one a posted callback
+  registered.
+}

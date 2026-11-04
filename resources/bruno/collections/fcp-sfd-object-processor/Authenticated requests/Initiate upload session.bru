@@ -1,0 +1,53 @@
+meta {
+  name: Initiate upload session
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{BASE_URL}}/api/v1/uploader/initiate
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "redirect": "{{REDIRECT}}",
+    "metadata": {
+      "sbi": {{SBI}},
+      "crn": {{CRN}},
+      "frn": {{FRN}},
+      "submissionId": "{{SUBMISSION_ID}}",
+      "uosr": "{{UOSR}}",
+      "type": "{{DOCUMENT_TYPE}}",
+      "reference": "{{REFERENCE}}",
+      "service": "{{SERVICE}}"
+    }
+  }
+}
+
+script:post-response {
+  const response = res.getBody();
+  bru.setEnvVar("UPLOAD_ID", response.uploadId);
+  bru.setEnvVar("UPLOAD_URL", response.uploadUrl);
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  Starts an upload session. The payload accepts only redirect and metadata;
+  the S3 bucket, S3 path, callback URL, permitted MIME types and maximum
+  file size are server-side config and any of them sent by the client is
+  rejected. Returns uploadId, uploadUrl and statusUrl.
+  
+  The post-response script stores uploadId and uploadUrl in the UPLOAD_ID
+  and UPLOAD_URL variables, so Get uploader scan status and the two upload
+  requests pick them up without any copying by hand.
+}

@@ -1,0 +1,22 @@
+meta {
+  name: Get uploader scan status
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{BASE_URL}}/api/v1/uploader/status/{{UPLOAD_ID}}
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  Proxies the CDP Uploader scan status for an upload session. The raw CDP
+  state is mapped to pending, success or failure. UPLOAD_ID is set by the
+  Initiate upload session post-response script.
+}
