@@ -1,0 +1,65 @@
+meta {
+  name: Find Triage Records by Correlation Id
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{CRM_URL}}/rpa_integrationinboundqueues?$select=rpa_integrationinboundqueueid,rpa_name,rpa_errordetails,rpa_processingresult,rpa_processingentity,createdon,modifiedon&$filter=contains(rpa_name,'{{correlationId}}')&$count=true
+  body: none
+  auth: inherit
+}
+
+params:query {
+  $select: rpa_integrationinboundqueueid,rpa_name,rpa_errordetails,rpa_processingresult,rpa_processingentity,createdon,modifiedon
+  $filter: contains(rpa_name,'{{correlationId}}')
+  $count: true
+}
+
+headers {
+  Prefer: odata.include-annotations="OData.Community.Display.V1.FormattedValue"
+}
+
+script:post-response {
+  const body = res.getBody();
+  const count = body['@odata.count'] ?? (body.value ?? []).length;
+  console.log(`records for correlationId ${bru.getEnvVar("correlationId")}: ${count}`);
+  (body.value ?? []).forEach(r => {
+    let details = {};
+    try { details = JSON.parse(r.rpa_errordetails ?? '{}'); } catch { details = { raw: r.rpa_errordetails }; }
+    console.log(`  ${r.rpa_integrationinboundqueueid}  ${details.failureReason}  created ${r.createdon}  modified ${r.modifiedon}`);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  Every triage record raised for one submission, counted. rpa_name is
+  written as "SFD doc upload failure {correlationId}", so a contains match
+  on the name finds them all without having to search the Memo field.
+  
+  This is the idempotency check. Redelivery of a failing message, and replay
+  of it from the dead letter queue, must both leave the count at *one* per
+  distinct failure reason. The record key is derived — a sha256 of
+  correlationId, fileId and failureReason shaped into a GUID — and written
+  with If-None-Match: '*', so a repeat write is answered 412 and discarded
+  rather than duplicated.
+  
+  Two things to read carefully:
+  
+  * *createdon and modifiedon should be identical.* The write is create-only
+    and first-write-wins, so a second attempt does not update the record. A
+    modifiedon later than createdon means something other than the
+    integration touched it.
+  
+  * *Two records for one correlation id is not necessarily a defect.* The
+    key includes the failure reason and the file id, so a submission whose
+    files fail for genuinely different reasons raises one record each. Check
+    failureReason in the console output before calling it a duplicate.
+  
+  Set {{correlationId}} by running "List Recent Triage Records" first, or by
+  hand if you already have it from the CDP logs.
+}

@@ -15,12 +15,12 @@ params:query {
   ~$select: _rpa_scheme_value,_rpa_subject_value,rpa_documenttypesid,rpa_casetype
 }
 
-vars:pre-request {
-  documentType: CS_Agreement_Evidence
-}
-
 headers {
   content-type: application/json
+}
+
+vars:pre-request {
+  documentType: CS_Agreement_Evidence
 }
 
 script:post-response {

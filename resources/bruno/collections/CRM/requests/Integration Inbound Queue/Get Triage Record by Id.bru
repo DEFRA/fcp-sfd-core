@@ -1,0 +1,87 @@
+meta {
+  name: Get Triage Record by Id
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{CRM_URL}}/rpa_integrationinboundqueues({{triageRecordId}})?$select=rpa_integrationinboundqueueid,rpa_name,rpa_errordetails,rpa_processingresult,rpa_processingentity,rpa_processingstage,statecode,statuscode,createdon,modifiedon,_ownerid_value,_createdby_value,_modifiedby_value
+  body: none
+  auth: inherit
+}
+
+params:query {
+  $select: rpa_integrationinboundqueueid,rpa_name,rpa_errordetails,rpa_processingresult,rpa_processingentity,rpa_processingstage,statecode,statuscode,createdon,modifiedon,_ownerid_value,_createdby_value,_modifiedby_value
+}
+
+headers {
+  Prefer: odata.include-annotations="OData.Community.Display.V1.FormattedValue"
+}
+
+script:pre-request {
+  const id = bru.getEnvVar("triageRecordId");
+  if (!id) {
+    throw new Error('triageRecordId is not set. Set it to the record primary key, or run "List Recent Triage Records" / "Get Triage Record by Derived Id" first.');
+  }
+  console.log(`fetching triage record ${id}`);
+}
+
+script:post-response {
+  if (res.getStatus() === 404) {
+    console.log(`no triage record for ${bru.getEnvVar("triageRecordId")} (404). The id does not exist in this organisation.`);
+    return;
+  }
+  const r = res.getBody();
+  let details = {};
+  try { details = JSON.parse(r.rpa_errordetails ?? '{}'); } catch { details = { raw: r.rpa_errordetails }; }
+  console.log({
+    id: r.rpa_integrationinboundqueueid,
+    name: r.rpa_name,
+    state: r['statecode@OData.Community.Display.V1.FormattedValue'],
+    status: r['statuscode@OData.Community.Display.V1.FormattedValue'],
+    result: r['rpa_processingresult@OData.Community.Display.V1.FormattedValue'],
+    entity: r['rpa_processingentity@OData.Community.Display.V1.FormattedValue'],
+    owner: r['_ownerid_value@OData.Community.Display.V1.FormattedValue'],
+    createdBy: r['_createdby_value@OData.Community.Display.V1.FormattedValue'],
+    createdon: r.createdon,
+    modifiedBy: r['_modifiedby_value@OData.Community.Display.V1.FormattedValue'],
+    modifiedon: r.modifiedon,
+    correlationId: details.correlationId,
+    fileId: details.fileId,
+    caseType: details.caseType,
+    failureReason: details.failureReason
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  Fetches one triage record by its primary key, taken directly from
+  {{triageRecordId}} with no derivation. Use this when you already have the
+  id — from a CDP log's event.reference, or quoted to you by someone — and do
+  not have the fileId that "Get Triage Record by Derived Id" needs to compute
+  the key.
+
+  Set {{triageRecordId}} to the record's GUID before running. The
+  pre-request script refuses an empty value. A 404 means no record with that
+  id exists in this organisation, which, if a log claims the write
+  succeeded, would mean the id in the log and the id in CRM have diverged.
+
+  It selects the state and audit fields the rest of the folder leaves out:
+  statecode and statuscode, and the created-by, modified-by and owner
+  lookups. fcp-sfd-crm only ever creates a triage record and never updates,
+  closes or reassigns it, so on an untouched record createdon equals
+  modifiedon, created-by equals modified-by, and the state is whatever the
+  entity defaults to on create. A modifiedon later than createdon, a
+  different modified-by, or an Inactive state therefore all mean something
+  other than the integration has acted on the record. That is how you read
+  off whether it has been closed, by whom and when.
+
+  The Prefer header adds FormattedValue annotations, so statecode, statuscode
+  and the picklists come back as readable labels ("Active", "Failed",
+  "Doc Upload") and the lookups as the user's display name alongside the raw
+  values.
+}
