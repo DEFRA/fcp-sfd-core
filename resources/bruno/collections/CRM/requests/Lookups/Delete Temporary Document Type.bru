@@ -1,0 +1,36 @@
+meta {
+  name: Delete Temporary Document Type
+  type: http
+  seq: 17
+}
+
+delete {
+  url: {{CRM_URL}}/rpa_documenttypeses({{TEMP_DOCUMENT_TYPE_ID}})
+  body: none
+  auth: inherit
+}
+
+script:pre-request {
+  const id = bru.getEnvVar("TEMP_DOCUMENT_TYPE_ID");
+  if (!id) {
+    throw new Error('TEMP_DOCUMENT_TYPE_ID is not set. Run "Create Temporary Document Type", or set it by hand to the row you mean to remove.');
+  }
+  console.log(`about to delete document type ${id}`);
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  Removes the throwaway document type row created for acceptance criterion 7.
+
+  Run it as soon as the replay evidence is captured. While the row exists the
+  case type is a valid routing target in a shared organisation, pointing at
+  whichever team was copied from the working row.
+
+  It deletes whatever TEMP_DOCUMENT_TYPE_ID holds, which "Create Temporary
+  Document Type" sets. Confirm the value before running: this is reference
+  data, and deleting a real row would break every submission of that type.
+}

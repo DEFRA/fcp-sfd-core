@@ -1,0 +1,79 @@
+meta {
+  name: Get Document Type Lookup Bind Names
+  type: http
+  seq: 15
+}
+
+get {
+  url: {{CRM_URL}}/EntityDefinitions(LogicalName='{{documentTypeLogicalName}}')/ManyToOneRelationships?$select=ReferencingAttribute,ReferencedEntity,ReferencingEntityNavigationPropertyName
+  body: none
+  auth: inherit
+}
+
+params:query {
+  $select: ReferencingAttribute,ReferencedEntity,ReferencingEntityNavigationPropertyName
+}
+
+vars:pre-request {
+  documentTypeLogicalName: rpa_documenttypes
+}
+
+script:post-response {
+  const rows = res.getBody().value ?? [];
+
+  // The three lookups a case needs: scheme, subject and team routing. Matched
+  // on the referencing attribute, which is the name without the leading
+  // underscore and trailing _value seen on a retrieved record.
+  const wanted = {
+    rpa_scheme: "SCHEME_NAV",
+    rpa_subject: "SUBJECT_NAV",
+    rpa_teamrouting: "TEAMROUTING_NAV"
+  };
+
+  console.log("attribute -> navigation property -> target entity set");
+  Object.keys(wanted).forEach(attr => {
+    const row = rows.find(r => (r.ReferencingAttribute || "").toLowerCase() === attr);
+    if (!row) {
+      console.log(`  ${attr}: NOT FOUND`);
+      return;
+    }
+    console.log(`  ${attr} -> ${row.ReferencingEntityNavigationPropertyName} -> ${row.ReferencedEntity}`);
+    bru.setEnvVar(wanted[attr], row.ReferencingEntityNavigationPropertyName);
+    bru.setEnvVar(wanted[attr] + "_TARGET", row.ReferencedEntity);
+  });
+
+  console.log(`${rows.length} many-to-one relationship(s) in total`);
+}
+
+settings {
+  encodeUrl: false
+  timeout: 0
+}
+
+docs {
+  Reads the navigation property names needed to bind a document type row's
+  scheme, subject and team routing lookups, so a row can be written over the
+  Web API rather than through the Customer Service Hub.
+
+  A retrieved record shows these lookups as _rpa_scheme_value,
+  _rpa_subject_value and _rpa_teamrouting_value, but those are read-only
+  projections. Writing one requires the navigation property name and the
+  target entity set, in the form:
+
+    "<NavigationProperty>@odata.bind": "/<targetentityset>(<guid>)"
+
+  The navigation property is usually the attribute in Pascal case, for
+  instance rpa_Scheme for rpa_scheme, but that is a convention rather than a
+  rule and guessing it produces a 400 that does not say which part was wrong.
+  This request reads it from the metadata instead.
+
+  The post-response script sets SCHEME_NAV, SUBJECT_NAV and TEAMROUTING_NAV,
+  plus a _TARGET for each giving the referenced entity's logical name. Note
+  that the target is a logical name; the bind path needs the *entity set*
+  name, which "Resolve EntitySetName by LogicalName" converts.
+
+  If documentTypeLogicalName is wrong the request 404s. The entity set is
+  rpa_documenttypeses, and the logical name is expected to be
+  rpa_documenttypes; confirm with "Resolve EntitySetName by LogicalName" if
+  this returns nothing.
+}

@@ -1,0 +1,46 @@
+meta {
+  name: Delete Triage Record
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{CRM_URL}}/rpa_integrationinboundqueues({{triageRecordId}})
+  body: none
+  auth: inherit
+}
+
+script:pre-request {
+  const id = bru.getEnvVar("triageRecordId");
+  if (!id) {
+    throw new Error('triageRecordId is not set. Run "Find Triage Records by Correlation Id" and set it deliberately before deleting.');
+  }
+  console.log(`about to delete triage record ${id}`);
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  Removes one triage record by its primary key. For clearing up records a QA
+  run created, not for anything else.
+
+  *Agree deletion with DDTS CRM before running it in a shared organisation.*
+  Triage records are the CRM operations team's work queue. A record that
+  looks like test noise from this side may be one they are mid-way through
+  investigating, and nothing in the entity distinguishes the two.
+
+  It deletes whatever {{triageRecordId}} currently holds, and that variable
+  is set as a side effect by both "List Recent Triage Records" and "Get
+  Triage Record by Derived Id" — so confirm what it points at before
+  running. The pre-request script refuses an empty value and prints the id
+  it is about to delete.
+
+  Nothing in fcp-sfd-crm ever deletes, closes or updates a triage record.
+  Once a record is written it stays as it is, including after the underlying
+  data is corrected and the message replays successfully. Clearing them is a
+  CRM-side responsibility with no automation behind it, which is worth
+  raising separately from any QA run.
+}

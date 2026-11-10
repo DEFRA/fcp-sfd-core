@@ -1,0 +1,103 @@
+meta {
+  name: Get Triage Record by Derived Id
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{CRM_URL}}/rpa_integrationinboundqueues({{triageRecordId}})?$select=rpa_integrationinboundqueueid,rpa_name,rpa_errordetails,rpa_processingresult,rpa_processingentity,rpa_processingstage,statuscode,createdon,modifiedon
+  body: none
+  auth: inherit
+}
+
+params:query {
+  $select: rpa_integrationinboundqueueid,rpa_name,rpa_errordetails,rpa_processingresult,rpa_processingentity,rpa_processingstage,statuscode,createdon,modifiedon
+}
+
+headers {
+  Prefer: odata.include-annotations="OData.Community.Display.V1.FormattedValue"
+}
+
+script:pre-request {
+  // Reproduces deriveIntegrationInboundQueueRecordId in fcp-sfd-crm
+  // (src/repos/crm.js): sha256 of the parts joined with ':', the first 32
+  // nibbles shaped into an RFC 4122 v4 GUID.
+  //
+  // Read from environment variables, not from a vars:pre-request block.
+  // bru.getVar reads only runtime variables; a vars:pre-request entry
+  // populates request variables, a separate collection used solely for
+  // {{...}} interpolation and invisible to bru.getVar. Reading them that way
+  // silently yields undefined, so the derivation below would never run.
+  const correlationId = bru.getEnvVar("correlationId");
+  const fileId = bru.getEnvVar("fileId");
+  const failureReason = bru.getEnvVar("failureReason") || "document_type_not_found";
+
+  if (correlationId && fileId && failureReason) {
+    // Required inside the branch, not at the top. require('crypto') is only
+    // available in the "developer" sandbox; the default "safe" sandbox has no
+    // such module and throws, which would fail the request before it is sent
+    // even when the caller supplied triageRecordId and needed no derivation
+    // at all.
+    const crypto = require('crypto');
+
+    const parts = ['integrationinboundqueue', correlationId, fileId, failureReason];
+    const hex = crypto.createHash('sha256').update(parts.join(':')).digest('hex').slice(0, 32).split('');
+    hex[12] = '4';
+    hex[16] = ((parseInt(hex[16], 16) & 0x3) | 0x8).toString(16);
+    const g = hex.join('');
+    const id = `${g.slice(0,8)}-${g.slice(8,12)}-${g.slice(12,16)}-${g.slice(16,20)}-${g.slice(20,32)}`;
+    console.log(`derived triage record id: ${id}`);
+    bru.setEnvVar("triageRecordId", id);
+  } else {
+    console.log(`using existing triageRecordId: ${bru.getEnvVar("triageRecordId")}`);
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  Fetches one triage record by its primary key, and derives that key first
+  rather than looking it up.
+
+  fcp-sfd-crm supplies the primary key on create instead of letting
+  Dataverse mint one. The key is a sha256 of
+  'integrationinboundqueue:{correlationId}:{fileId}:{failureReason}' shaped
+  into a v4 GUID, which is what makes the write safe to repeat: the same
+  failure always addresses the same record, and If-None-Match: '*' turns
+  every later attempt into a 412.
+
+  The pre-request script reproduces that derivation. Set correlationId,
+  fileId and optionally failureReason as *environment* variables and it
+  computes {{triageRecordId}} before the request goes out. Leave them unset to
+  use whatever {{triageRecordId}} already holds, for instance the value "List
+  Recent Triage Records" set from the newest row.
+
+  They must be environment variables rather than pre-request variables.
+  bru.getVar reads only runtime variables, so a vars:pre-request entry is
+  invisible to it and the derivation would quietly never run.
+
+  *Deriving here needs the developer sandbox.* require('crypto') exists only
+  in that sandbox, not in the default "safe" one. In the app, set it in
+  collection settings; from the CLI, pass --sandbox developer. Supplying
+  triageRecordId directly needs neither, because the require sits inside the
+  branch that derives.
+
+  Verified against the deployed function: correlationId
+  77777777-8888-4999-8aaa-bbbbbbbbbbbb, fileId
+  cccccccc-dddd-4eee-8fff-000000000000, reason document_type_not_found
+  derives f4f45052-760f-4bc7-afac-b872349cd2ac.
+
+  Two uses. Predictively, derive the id *before* forcing a failure and
+  confirm afterwards that exactly that record exists — proof the key is
+  deterministic rather than incidental. Diagnostically, a 404 here when the
+  logs claim the write succeeded means the id in the log's event.reference
+  and the id in CRM have diverged, which would be a real defect.
+
+  failureReason must be one of contact_not_found_for_crn,
+  account_not_found_for_sbi, document_type_not_found or
+  document_type_metadata_incomplete. Any other string derives a GUID for a
+  record that was never written, and the request answers 404.
+}

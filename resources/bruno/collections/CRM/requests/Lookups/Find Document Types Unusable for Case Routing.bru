@@ -1,0 +1,112 @@
+meta {
+  name: Find Document Types Unusable for Case Routing
+  type: http
+  seq: 14
+}
+
+get {
+  url: {{CRM_URL}}/rpa_documenttypeses?$select=rpa_documenttype,rpa_documenttypesid,_rpa_scheme_value,_rpa_subject_value,_rpa_teamrouting_value
+  body: none
+  auth: inherit
+}
+
+params:query {
+  $select: rpa_documenttype,rpa_documenttypesid,_rpa_scheme_value,_rpa_subject_value,_rpa_teamrouting_value
+}
+
+script:post-response {
+  // The document types fcp-sfd-object-processor accepts on the initiate
+  // endpoint (CDP_UPLOADER_DOCUMENT_TYPES in cdp-app-config). metadata.type
+  // is validated against this list, so only a value from it can reach CRM.
+  const allowed = 'Appeal_Evidence,Business_Structure_Change,Complaint_Evidence,CS_Agreement_Amendment,CS_Agreement_Evidence,CS_Application_Declaration,CS_Application_Evidence,CS_Capital_Claim_Evidence,CS_Facilitation_Fund_Amendment,CS_Facilitation_Fund_Evidence,CS_HT_APP_Evidence_Includes_Maps,CS_HT_APP_Evidence_No_Maps,CS_Revenue_Claim_Amendment,CS_Revenue_Claim_Evidence,Delinked_Amendment,Delinked_Evidence,ES_Agreement_Amendment,ES_Claim,ES_Claim_Evidence,GS_Adding_Value,GS_Adding_Value_Claim,GS_Adding_Value_Evidence,GS_Calf_Housing,GS_Calf_Housing_AEL&D_Evidence,GS_Calf_Housing_AEL&D_Form,GS_Calf_Housing_Amendment,GS_Calf_Housing_App_Evidence,GS_Calf_Housing_App_Form,GS_Calf_Housing_Claim,GS_Calf_Housing_Claim_Evidence,GS_Calf_Housing_Grant_Fund_Agg,GS_FETF,GS_FETF_Amendment,GS_FETF_Claim,GS_FETF_Claim_Evidence,GS_FETF_Grant_Fund_Agg,GS_Game_Handling_Establishment,GS_GHE_Amendment,GS_GHE_Claim,GS_GHE_Claim_Evidence,GS_IFP_Amendment,GS_IFP_Claim,GS_IFP_Claim_Evidence,GS_IFP_Grant_Fund_Agg,GS_Improving_Farm_Productivity,GS_Laying_Hens,GS_Laying_Hens_Amendment,GS_Laying_Hens_App_Evidence,GS_Laying_Hens_App_Form,GS_Laying_Hens_Claim,GS_Laying_Hens_Claim_Evidence,GS_Laying_Hens_Grant_Fund_Agg,GS_SAF_Amendment,GS_SAF_Claim,GS_SAF_Claim_Evidence,GS_SIG_Amendment,GS_SIG_App_Evidence,GS_SIG_App_General,GS_SIG_Claim,GS_SIG_Claim_Evidence,GS_SIG_Declaration,GS_SIG_Grant_Fund_Agg,GS_SIG_SSL&D_Evidence,GS_SIG_SSL&D_Form,GS_Slurry_Infrastructure_Grant,GS_Smaller_Abattoir_Fund,GS_Targeted_Silos_Replacement_Scheme,GS_TSRS_Amendment,GS_TSRS_Claim,GS_TSRS_Claim_Evidence,GS_Water_Management,GS_Water_Management_Amendment,GS_Water_Management_Claim,GS_Water_Management_Claim_Evidence,GS_Water_Restoration_Fund,GS_WRF_Amendment,GS_WRF_Claim,GS_WRF_Claim_Evidence,Pigeon_Loft_Owners,Probate_Evidence,SFI_Expanded_Offer_Evidence,SFI_Pilot_Evidence,SFI23_Evidence'.split(',');
+
+  const rows = res.getBody().value ?? [];
+  const byType = new Map(rows.map(r => [r.rpa_documenttype, r]));
+
+  const missingFields = (r) => ['schemeValue', 'subjectValue', 'teamRoutingValue', 'documentTypesId']
+    .filter((_, i) => !([r._rpa_scheme_value, r._rpa_subject_value, r._rpa_teamrouting_value, r.rpa_documenttypesid][i]));
+
+  const noRow = allowed.filter(t => !byType.has(t));
+  const incomplete = allowed
+    .filter(t => byType.has(t))
+    .map(t => ({ type: t, missing: missingFields(byType.get(t)) }))
+    .filter(x => x.missing.length);
+  const complete = allowed.filter(t => byType.has(t) && !missingFields(byType.get(t)).length);
+
+  console.log(`rows in rpa_documenttypeses: ${rows.length}`);
+  console.log(`--- no matching row  =>  document_type_not_found  (${noRow.length})`);
+  console.log(noRow.slice(0, 20));
+  console.log(`--- row present but incomplete  =>  document_type_metadata_incomplete  (${incomplete.length})`);
+  console.log(incomplete.slice(0, 20));
+  console.log(`--- usable, for the control and replay runs  (${complete.length})`);
+  console.log(complete.slice(0, 20));
+
+  if (noRow.length) { bru.setEnvVar("DOCTYPE_NO_ROW", noRow[0]); }
+  if (incomplete.length) { bru.setEnvVar("DOCTYPE_INCOMPLETE", incomplete[0].type); }
+  if (complete.length) { bru.setEnvVar("DOCTYPE_GOOD", complete[0]); }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  Finds, without seeding anything, the document types that make fcp-sfd-crm
+  raise a triage record — and the ones that do not.
+
+  Two of the four failure conditions turn on document type data:
+
+    document_type_not_found            no rpa_documenttypeses row matches
+                                       the case type
+    document_type_metadata_incomplete  a row matches but one of
+                                       _rpa_scheme_value, _rpa_subject_value,
+                                       _rpa_teamrouting_value or
+                                       rpa_documenttypesid is empty
+
+  The second is the condition the ticket calls the most easily overlooked. A
+  row can exist and still be unusable, and fcp-sfd-crm refuses to write
+  rather than bind an undefined value into the case — which would produce a
+  case no team ever works.
+
+  The case type cannot be an arbitrary string. It arrives as metadata.type
+  on the object-processor's initiate endpoint, which validates it against
+  CDP_UPLOADER_DOCUMENT_TYPES, so a lever has to be a document type that is
+  *allowed there* and *unusable here*. The post-response script does that
+  intersection: it fetches every row, diffs the allowed list against it, and
+  prints three groups — allowed types with no row, allowed types whose row
+  is incomplete, and allowed types that are fully usable.
+
+  It sets three env vars from the first entry of each group:
+
+    DOCTYPE_NO_ROW      forces document_type_not_found
+    DOCTYPE_INCOMPLETE  forces document_type_metadata_incomplete
+    DOCTYPE_GOOD        the control, for the happy path and the replay run
+
+  Use these as the DOCTYPE variable in the OBJECT-PROCESSOR collection's
+  "Initiate Endpoint" and no CRM data needs to be created or edited for a
+  QA run.
+
+  If a group comes back empty in the organisation you are pointed at, the
+  remedy differs by group and the two are not interchangeable.
+
+  *DOCTYPE_INCOMPLETE empty* means every row is complete. Seed one: create an
+  rpa_documenttypeses row whose rpa_documenttype is an allowed type, leaving
+  Scheme, Subject and Team Routing blank, and delete it afterwards. Agree the
+  seed and its removal with DDTS CRM first — this is shared reference data.
+
+  *DOCTYPE_NO_ROW empty* means every allowed type already has a row, so the
+  two lists have not drifted. Seeding cannot help here: adding a row is the
+  opposite of what "not found" needs, and deleting one to manufacture a lever
+  would damage reference data other people rely on. Force the condition by
+  putting a message on the CRM queue directly instead. The consumer's
+  CloudEvent schema types `crm` as Joi.object().optional() and never
+  constrains caseType, so any value is accepted there; the restriction to the
+  allowed list applies only at the object-processor's initiate endpoint.
+
+  Keep the allowed list in the script in step with
+  cdp-app-config/services/fcp-sfd-object-processor/defaults.env. A type that
+  has been removed there but left here produces a lever that fails
+  validation at initiate rather than in CRM, which looks like a broken test
+  rather than a stale list.
+}

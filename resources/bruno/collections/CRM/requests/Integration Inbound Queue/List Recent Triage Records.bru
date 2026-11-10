@@ -1,0 +1,97 @@
+meta {
+  name: List Recent Triage Records
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{CRM_URL}}/rpa_integrationinboundqueues?$select=rpa_integrationinboundqueueid,rpa_name,rpa_errordetails,rpa_processingresult,rpa_processingentity,rpa_processingstage,statuscode,createdon,modifiedon&$orderby=createdon desc&$top={{top}}
+  body: none
+  auth: inherit
+}
+
+params:query {
+  $select: rpa_integrationinboundqueueid,rpa_name,rpa_errordetails,rpa_processingresult,rpa_processingentity,rpa_processingstage,statuscode,createdon,modifiedon
+  $orderby: createdon desc
+  $top: {{top}}
+}
+
+headers {
+  Prefer: odata.include-annotations="OData.Community.Display.V1.FormattedValue"
+}
+
+vars:pre-request {
+  top: 10
+}
+
+script:post-response {
+  const rows = res.getBody().value ?? [];
+  const summary = rows.map(r => {
+    let details = {};
+    try { details = JSON.parse(r.rpa_errordetails ?? '{}'); } catch { details = { raw: r.rpa_errordetails }; }
+    return {
+      createdon: r.createdon,
+      id: r.rpa_integrationinboundqueueid,
+      name: r.rpa_name,
+      result: r['rpa_processingresult@OData.Community.Display.V1.FormattedValue'],
+      entity: r['rpa_processingentity@OData.Community.Display.V1.FormattedValue'],
+      correlationId: details.correlationId,
+      fileId: details.fileId,
+      caseType: details.caseType,
+      failureReason: details.failureReason,
+      errorMessage: details.errorMessage
+    };
+  });
+  console.log(summary);
+  if (summary.length) {
+    bru.setEnvVar("correlationId", summary[0].correlationId);
+    bru.setEnvVar("triageRecordId", summary[0].id);
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  The newest triage records the doc-upload integration has written, newest
+  first. This is the request to run after forcing a failure: it is how you
+  confirm a record was raised at all, and it is the only place the identity
+  of the failed submission is recorded.
+  
+  The entity has no attribute for the CRN, the SBI, the case type or the
+  correlation identifier, so fcp-sfd-crm packs all of them into
+  rpa_errordetails as JSON:
+  
+    { "correlationId", "fileId", "caseType", "failureReason", "errorMessage" }
+  
+  The post-response script parses that JSON for every row and prints a flat
+  summary to the Bruno console, then sets {{correlationId}} and
+  {{triageRecordId}} from the newest row. Those two env vars are what the
+  rest of this folder and the CDP log search key off, so run this first and
+  read the correlation id out of the record rather than trying to find it
+  before the record exists.
+  
+  failureReason is one of four values, and is the only thing that
+  distinguishes the four conditions from one another. rpa_processingresult
+  is Failed for all of them:
+  
+    contact_not_found_for_crn
+    account_not_found_for_sbi
+    document_type_not_found
+    document_type_metadata_incomplete
+  
+  The Prefer header adds FormattedValue annotations, so the picklists come
+  back as "Failed" and "Doc Upload" alongside their integers rather than as
+  bare option-set values.
+  
+  Note what is *not* populated. fcp-sfd-crm writes exactly four attributes —
+  rpa_name, rpa_errordetails, rpa_processingresult and rpa_processingentity.
+  rpa_processingstage, statuscode, rpa_xmlmessage, rpa_attempt and
+  rpa_dateprocessed are all left empty. They are selected here so that stays
+  visible: if a CRM triage view filters on any of them, these records will
+  not appear in it.
+  
+  Raise {{top}} if several runs are being inspected at once.
+}

@@ -5,18 +5,18 @@ meta {
 }
 
 get {
-  url: {{CRM_URL}}/contacts?$select=contactid,fullname,rpa_capcustomerid
+  url: {{CRM_URL}}/contacts?$select=contactid,fullname,rpa_capcustomerid&$filter=rpa_capcustomerid eq '{{crn}}'
   body: none
   auth: inherit
 }
 
 params:query {
   $select: contactid,fullname,rpa_capcustomerid
-  ~$filter: rpa_capcustomerid eq '{{crn}}'
+  $filter: rpa_capcustomerid eq '{{crn}}'
 }
 
 vars:pre-request {
-  crn: 1234567890
+  crn:
 }
 
 script:post-response {
